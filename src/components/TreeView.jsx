@@ -17,10 +17,10 @@ const TreeView = ({ data }) => {
     const nodeRow = (
       <tr key={node.id}>
         <td>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} />
-            <span onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default', paddingLeft: '5px' }}>
-              {hasChildren && (isExpanded ? '[-]' : '[+]')} {node.name}
+          <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
+            <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} />
+            <span style={{ paddingLeft: '5px' }}>
+              {node.name}
             </span>
           </div>
         </td>
