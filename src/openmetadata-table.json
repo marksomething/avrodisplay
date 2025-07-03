@@ -1,0 +1,77 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+  "name": "my_sales_table",
+  "displayName": "My Sales Data",
+  "fullyQualifiedName": "serviceName.databaseName.schemaName.my_sales_table",
+  "description": "This table contains sales transaction data.",
+  "tableType": "Regular",
+  "columns": [
+    {
+      "name": "order_id",
+      "dataType": "BIGINT",
+      "description": "Unique identifier for each order.",
+      "constraint": "PRIMARY_KEY"
+    },
+    {
+      "name": "product_name",
+      "dataType": "VARCHAR",
+      "dataLength": 255,
+      "description": "Name of the product sold."
+    },
+    {
+      "name": "sale_amount",
+      "dataType": "DECIMAL",
+      "precision": 10,
+      "scale": 2,
+      "description": "The amount of the sale."
+    },
+    {
+      "name": "customer_info",
+      "dataType": "STRUCT",
+      "description": "Information about the customer.",
+      "children": [
+        {
+          "name": "customer_id",
+          "dataType": "BIGINT",
+          "description": "Unique identifier for the customer."
+        },
+        {
+          "name": "customer_name",
+          "dataType": "VARCHAR",
+          "dataLength": 100,
+          "description": "Name of the customer."
+        },
+        {
+          "name": "email",
+          "dataType": "VARCHAR",
+          "dataLength": 255,
+          "description": "Email address of the customer."
+        }
+      ]
+    }
+  ],
+  "databaseSchema": {
+    "id": "f1e2d3c4-b5a6-9876-5432-10fedcba9876",
+    "type": "databaseSchema",
+    "name": "my_database_schema",
+    "fullyQualifiedName": "serviceName.databaseName.my_database_schema",
+    "href": "/api/v1/databaseSchemas/f1e2d3c4-b5a6-9876-5432-10fedcba9876"
+  },
+  "database": {
+    "id": "c1b2a3d4-e5f6-7890-1234-567890abcdef",
+    "type": "database",
+    "name": "my_database",
+    "fullyQualifiedName": "serviceName.my_database",
+    "href": "/api/v1/databases/c1b2a3d4-e5f6-7890-1234-567890abcdef"
+  },
+  "service": {
+    "id": "e1d2c3b4-a5f6-7890-1234-567890abcdef",
+    "type": "databaseService",
+    "name": "my_data_warehouse",
+    "fullyQualifiedName": "my_data_warehouse",
+    "href": "/api/v1/services/databaseServices/e1d2c3b4-a5f6-7890-1234-567890abcdef"
+  },
+  "version": 0.1,
+  "updatedAt": 1678886400000,
+  "updatedBy": "admin"
+}
