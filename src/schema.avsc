@@ -1,0 +1,36 @@
+{
+  "type": "record",
+  "name": "User",
+  "fields": [
+    { "name": "id", "type": "long" },
+    { "name": "username", "type": "string" },
+    { "name": "email", "type": ["null", "string"], "default": null },
+    {
+      "name": "address",
+      "type": {
+        "type": "record",
+        "name": "Address",
+        "fields": [
+          { "name": "street", "type": "string" },
+          { "name": "city", "type": "string" },
+          { "name": "zip_code", "type": "string" }
+        ]
+      }
+    },
+    {
+      "name": "orders",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "Order",
+          "fields": [
+            { "name": "order_id", "type": "long" },
+            { "name": "order_date", "type": "string" },
+            { "name": "total_amount", "type": "double" }
+          ]
+        }
+      }
+    }
+  ]
+}
