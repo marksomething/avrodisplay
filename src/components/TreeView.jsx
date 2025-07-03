@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import TreeIcon from './TreeIcon';
 
 const TreeView = ({ data }) => {
   const [expanded, setExpanded] = useState({});
@@ -9,16 +10,19 @@ const TreeView = ({ data }) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const renderNode = (node, level = 0) => {
+  const renderNode = (node, ancestorsLast = [], isLast = true) => {
     const isExpanded = expanded[node.id];
     const hasChildren = node.children && node.children.length > 0;
 
     const nodeRow = (
       <tr key={node.id}>
-        <td style={{ paddingLeft: `${level * 20}px` }}>
-          <span onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
-            {hasChildren && (isExpanded ? '[-]' : '[+]')} {node.name}
-          </span>
+        <td>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} />
+            <span onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default', paddingLeft: '5px' }}>
+              {hasChildren && (isExpanded ? '[-]' : '[+]')} {node.name}
+            </span>
+          </div>
         </td>
         {Object.values(node.properties).map((value, index) => (
           <td key={index}>{String(value)}</td>
@@ -27,7 +31,7 @@ const TreeView = ({ data }) => {
     );
 
     const childRows = isExpanded && hasChildren
-      ? node.children.flatMap((child) => renderNode(child, level + 1))
+      ? node.children.flatMap((child, index) => renderNode(child, [...ancestorsLast, isLast], index === node.children.length - 1))
       : [];
 
     return [nodeRow, ...childRows];
@@ -45,7 +49,7 @@ const TreeView = ({ data }) => {
         </tr>
       </thead>
       <tbody>
-        {data.flatMap((node) => renderNode(node))}
+        {data.flatMap((node, index) => renderNode(node, [], index === data.length - 1))}
       </tbody>
     </table>
   );

@@ -4,12 +4,19 @@ table {
   margin-top: 10px;
 }
 
-thead {
+thead th {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
   background-color: #f2f2f2;
+  z-index: 1;
 }
 
 th, td {
-  border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
