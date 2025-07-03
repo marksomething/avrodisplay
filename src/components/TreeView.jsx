@@ -16,7 +16,7 @@ const TreeView = ({ data }) => {
 
     const nodeRow = (
       <tr key={node.id}>
-        <td>
+        <td className="tree-cell">
           <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
             <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} />
             <span style={{ paddingLeft: '5px' }}>
