@@ -1,3 +1,26 @@
+:root {
+  --font-color: #213547;
+  --background-color: #ffffff;
+  --header-bg: #f2f2f2;
+  --row-alt-bg: #f9f9f9;
+  --border-color: #ddd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --font-color: #f9f9f9;
+    --background-color: #242424;
+    --header-bg: #3a3a3a;
+    --row-alt-bg: #2e2e2e;
+    --border-color: #555;
+  }
+}
+
+body {
+  color: var(--font-color);
+  background-color: var(--background-color);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -8,15 +31,25 @@ thead th {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  background-color: #f2f2f2;
+  background-color: var(--header-bg);
   z-index: 1;
+  border-bottom: 2px solid var(--border-color);
 }
 
 th, td {
-  padding: 8px;
+  padding: 12px 15px;
   text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+tbody tr {
+  background-color: var(--background-color);
 }
 
 tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: var(--row-alt-bg);
+}
+
+.App {
+    text-align: left;
 }
