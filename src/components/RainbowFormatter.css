@@ -1,0 +1,29 @@
+:root {
+  --rainbow-color-0: #FF0000;
+  --rainbow-color-1: #FF7F00;
+  --rainbow-color-2: #FFFF00;
+  --rainbow-color-3: #00FF00;
+  --rainbow-color-4: #0000FF;
+  --rainbow-color-5: #4B0082;
+  --rainbow-color-6: #9400D3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rainbow-color-0: #FF6666;
+    --rainbow-color-1: #FFB266;
+    --rainbow-color-2: #FFFF66;
+    --rainbow-color-3: #66FF66;
+    --rainbow-color-4: #6666FF;
+    --rainbow-color-5: #8F66B2;
+    --rainbow-color-6: #B266FF;
+  }
+}
+
+.rainbow-char-0 { color: var(--rainbow-color-0); }
+.rainbow-char-1 { color: var(--rainbow-color-1); }
+.rainbow-char-2 { color: var(--rainbow-color-2); }
+.rainbow-char-3 { color: var(--rainbow-color-3); }
+.rainbow-char-4 { color: var(--rainbow-color-4); }
+.rainbow-char-5 { color: var(--rainbow-color-5); }
+.rainbow-char-6 { color: var(--rainbow-color-6); }

@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import './RainbowFormatter.css';
 
 const RainbowFormatter = ({ children }) => {
-  const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
+  const [startIndex, setStartIndex] = useState(0);
+
+  useEffect(() => {
+    setStartIndex(Math.floor(Math.random() * 7));
+  }, []);
 
   if (typeof children !== 'string') {
     return String(children);
@@ -11,7 +16,7 @@ const RainbowFormatter = ({ children }) => {
   return (
     <span>
       {children.split('').map((char, index) => (
-        <span key={index} style={{ color: colors[index % colors.length] }}>
+        <span key={index} className={`rainbow-char-${(startIndex + index) % 7}`}>
           {char}
         </span>
       ))}

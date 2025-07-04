@@ -11,7 +11,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
   };
 
   const headers = fieldConfiguration
-    ? ['Name', ...Object.keys(fieldConfiguration)]
+    ? ['Name', ...Object.keys(fieldConfiguration).filter(header => header !== 'Name')]
     : (data.length > 0 ? ['Name', ...Object.keys(data[0].properties)] : []);
 
   const renderNode = (node, ancestorsLast = [], isLast = true) => {
@@ -30,12 +30,12 @@ const TreeView = ({ data, fieldConfiguration }) => {
             </span>
           </div>
         </td>
-        {headers.slice(1).map((header) => {
+        {headers.filter(header => header !== 'Name').map((header) => {
           const value = node.properties[header];
           const Formatter = fieldConfiguration && fieldConfiguration[header] && fieldConfiguration[header].formatter;
           return (
             <td key={header}>
-              {Formatter ? <Formatter>{value}</Formatter> : String(value || '')}
+              {Formatter ? React.createElement(Formatter, null, value) : String(value || '')}
             </td>
           );
         })}
