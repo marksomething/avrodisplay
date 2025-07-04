@@ -52,10 +52,14 @@ function App() {
 
   const mergedData = mergeData(data, additionalProperties);
 
+  const NullableStatusDotFormatter = (props) => (
+    <StatusDotFormatter {...props} colorMap={{ 'Yes': '#28a745', 'No': '#dc3545' }} />
+  );
+
   const fieldConfiguration = {
     Name: { formatter: RainbowFormatter },
     Type: {},
-    Nullable: { formatter: StatusDotFormatter, formatterProps: { colorMap: { 'Yes': '#28a745', 'No': '#dc3545' } } },
+    Nullable: { formatter: NullableStatusDotFormatter },
     Description: {},
     Source: {},
     PII: {},

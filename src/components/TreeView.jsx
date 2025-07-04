@@ -25,7 +25,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
             <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} />
             <span style={{ paddingLeft: '5px' }}>
               {fieldConfiguration && fieldConfiguration.Name && fieldConfiguration.Name.formatter
-                ? React.createElement(fieldConfiguration.Name.formatter, fieldConfiguration.Name.formatterProps, node.name)
+                ? React.createElement(fieldConfiguration.Name.formatter, null, node.name)
                 : node.name}
             </span>
           </div>
@@ -33,10 +33,9 @@ const TreeView = ({ data, fieldConfiguration }) => {
         {headers.filter(header => header !== 'Name').map((header) => {
           const value = node.properties[header];
           const Formatter = fieldConfiguration && fieldConfiguration[header] && fieldConfiguration[header].formatter;
-          const formatterProps = fieldConfiguration && fieldConfiguration[header] && fieldConfiguration[header].formatterProps;
           return (
             <td key={header}>
-              {Formatter ? React.createElement(Formatter, formatterProps, value) : String(value || '')}
+              {Formatter ? React.createElement(Formatter, null, value) : String(value || '')}
             </td>
           );
         })}
