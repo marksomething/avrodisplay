@@ -50,8 +50,12 @@ tbody tr {
   background-color: var(--background-color);
 }
 
-tbody tr:nth-child(even) {
-  background-color: var(--row-alt-bg);
+tbody tr:not(.has-second-line) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+tr:last-child {
+  border-bottom: 1px solid var(--border-color);
 }
 
 .App {

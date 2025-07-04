@@ -28,12 +28,10 @@ const TreeView = ({ data, fieldConfiguration }) => {
       </div>
     ) : null;
 
-    const rowBackgroundColor = rowIndex % 2 === 0 ? 'var(--background-color)' : 'var(--row-alt-bg)';
-
     const nodeRow = (
-      <tr key={node.id} style={{ backgroundColor: rowBackgroundColor }}>
+      <tr key={node.id} className={secondLineContent ? 'has-second-line' : ''}>
         <td className="tree-cell">
-          <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
+          <div style={{ display: 'flex', alignItems: 'center', cursor: hasChildren ? 'pointer' : 'default' }} onClick={() => hasChildren && toggleExpand(node.id)}>
             <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} hasSecondLine={!!secondLineContent} />
             <span style={{ paddingLeft: '5px' }}>
               {fieldConfiguration && fieldConfiguration.Name && fieldConfiguration.Name.formatter
@@ -55,7 +53,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
     );
 
     const secondLineRow = secondLineContent ? (
-      <tr key={`${node.id}-second-line`} style={{ backgroundColor: rowBackgroundColor }}>
+      <tr key={`${node.id}-second-line`}>
         <td className="tree-cell">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {ancestorsLast.map((isAncestorLast, i) => (
