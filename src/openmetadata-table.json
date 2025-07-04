@@ -31,11 +31,6 @@
       "description": "Timestamp of the sale."
     },
     {
-      "name": "sale_date",
-      "dataType": "TIMESTAMP",
-      "description": "Timestamp of the sale."
-    },
-    {
       "name": "delivery_date",
       "dataType": "TIMESTAMP",
       "description": "Expected delivery date.",
@@ -64,6 +59,36 @@
           "description": "Email address of the customer."
         }
       ]
+    },
+    {
+      "name": "line_items",
+      "dataType": "ARRAY",
+      "arrayDataType": "STRUCT",
+      "description": "List of items in the order.",
+      "children": [
+        {
+          "name": "item_id",
+          "dataType": "BIGINT",
+          "description": "Unique identifier for the item."
+        },
+        {
+          "name": "item_name",
+          "dataType": "VARCHAR",
+          "dataLength": 255,
+          "description": "Name of the item."
+        },
+        {
+          "name": "quantity",
+          "dataType": "INT",
+          "description": "Quantity of the item."
+        }
+      ]
+    },
+    {
+      "name": "payment_methods",
+      "dataType": "ARRAY",
+      "arrayDataType": "VARCHAR",
+      "description": "List of payment methods used."
     }
   ],
   "databaseSchema": {

@@ -43,7 +43,13 @@
           "total_amount": { "type": "number" }
         },
         "required": ["order_id", "order_date", "total_amount"]
-      }
+      },
+      "description": "List of orders made by the user."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of tags associated with the user."
     }
   },
   "required": ["id", "username"]

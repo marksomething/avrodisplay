@@ -33,7 +33,16 @@
             { "name": "total_amount", "type": "double" }
           ]
         }
-      }
+      },
+      "doc": "List of orders made by the user."
+    },
+    {
+      "name": "tags",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "doc": "List of tags associated with the user."
     }
   ]
 }

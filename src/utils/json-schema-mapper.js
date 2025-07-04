@@ -7,7 +7,23 @@ const parseType = (property) => {
   if (Array.isArray(property.type)) {
     const nonNullTypes = property.type.filter(t => t !== 'null');
     isNullable = property.type.includes('null');
-    typeString = nonNullTypes.join(' | ');
+    typeString = nonNullTypes.map(t => {
+      if (typeof t === 'object' && t !== null && t.type) {
+        return t.type;
+      }
+      return t;
+    }).join(' | ');
+  } else if (property.type === 'array') {
+    if (property.items) {
+      const itemType = property.items.type;
+      if (typeof property.items === 'object' && property.items !== null && property.items.properties) {
+        typeString = `ARRAY[object]`;
+      } else {
+        typeString = `ARRAY[${itemType}]`;
+      }
+    } else {
+      typeString = 'ARRAY';
+    }
   } else {
     typeString = property.type;
   }
@@ -25,9 +41,11 @@ const jsonSchemaToTree = (schema) => {
   const processProperties = (properties) => {
     return Object.entries(properties).map(([name, property]) => {
       const parsedType = parseType(property);
+      const isArrayField = property.type === 'array';
+
       const baseNode = {
         id: `node-${idCounter++}`,
-        name,
+        name: name + (isArrayField ? '[]' : ''),
         properties: { Type: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
       };
 
