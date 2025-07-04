@@ -60,7 +60,7 @@ function App() {
     Name: { formatter: RainbowFormatter, title: 'Field Name' },
     DataType: { title: 'Data Type' },
     Nullable: { formatter: NullableStatusDotFormatter, title: 'Is Nullable?' },
-    Description: { title: 'Description' },
+    Description: { title: 'Description', renderAsSecondLine: true },
     Source: { title: 'Data Source' },
     PII: { title: 'Sensitive Data' },
   };

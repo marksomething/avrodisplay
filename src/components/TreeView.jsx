@@ -11,18 +11,29 @@ const TreeView = ({ data, fieldConfiguration }) => {
   };
 
   const headers = fieldConfiguration
-    ? ['Name', ...Object.keys(fieldConfiguration).filter(header => header !== 'Name')]
+    ? ['Name', ...Object.keys(fieldConfiguration).filter(header => header !== 'Name' && !fieldConfiguration[header]?.renderAsSecondLine)]
     : (data.length > 0 ? ['Name', ...Object.keys(data[0].properties)] : []);
 
   const renderNode = (node, ancestorsLast = [], isLast = true) => {
     const isExpanded = expanded[node.id];
     const hasChildren = node.children && node.children.length > 0;
 
+    const secondLineFields = Object.keys(fieldConfiguration).filter(header => fieldConfiguration[header]?.renderAsSecondLine);
+    const secondLineContent = secondLineFields.length > 0 ? (
+      <div style={{ paddingLeft: `${(ancestorsLast.length + 1) * 20}px`, marginTop: '5px' }}>
+        {secondLineFields.map(header => {
+          const value = node.properties[header];
+          const Formatter = fieldConfiguration[header]?.formatter;
+          return Formatter ? React.createElement(Formatter, null, value) : String(value || '');
+        })}
+      </div>
+    ) : null;
+
     const nodeRow = (
       <tr key={node.id}>
         <td className="tree-cell">
           <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
-            <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} />
+            <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} hasSecondLine={!!secondLineContent} />
             <span style={{ paddingLeft: '5px' }}>
               {fieldConfiguration && fieldConfiguration.Name && fieldConfiguration.Name.formatter
                 ? React.createElement(fieldConfiguration.Name.formatter, null, node.name)
@@ -42,11 +53,19 @@ const TreeView = ({ data, fieldConfiguration }) => {
       </tr>
     );
 
+    const secondLineRow = secondLineContent ? (
+      <tr key={`${node.id}-second-line`}>
+        <td colSpan={headers.length} style={{ padding: '0 15px 8px 0' }}>
+          {secondLineContent}
+        </td>
+      </tr>
+    ) : null;
+
     const childRows = isExpanded && hasChildren
       ? node.children.flatMap((child, index) => renderNode(child, [...ancestorsLast, isLast], index === node.children.length - 1))
       : [];
 
-    return [nodeRow, ...childRows];
+    return [nodeRow, secondLineRow, ...childRows].filter(Boolean);
   };
 
   return (
