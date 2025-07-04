@@ -24,13 +24,21 @@ const TreeView = ({ data, fieldConfiguration }) => {
           <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
             <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} />
             <span style={{ paddingLeft: '5px' }}>
-              {node.name}
+              {fieldConfiguration && fieldConfiguration.Name && fieldConfiguration.Name.formatter
+                ? React.createElement(fieldConfiguration.Name.formatter, null, node.name)
+                : node.name}
             </span>
           </div>
         </td>
-        {headers.slice(1).map((header) => (
-          <td key={header}>{String(node.properties[header] || '')}</td>
-        ))}
+        {headers.slice(1).map((header) => {
+          const value = node.properties[header];
+          const Formatter = fieldConfiguration && fieldConfiguration[header] && fieldConfiguration[header].formatter;
+          return (
+            <td key={header}>
+              {Formatter ? <Formatter>{value}</Formatter> : String(value || '')}
+            </td>
+          );
+        })}
       </tr>
     );
 

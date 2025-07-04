@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import TreeView from './components/TreeView';
+import RainbowFormatter from './components/RainbowFormatter';
 import './App.css';
 import avroSchemaRaw from './schema.avsc?raw';
 import jsonSchemaRaw from '././schema.json?raw';
@@ -51,6 +52,7 @@ function App() {
   const mergedData = mergeData(data, additionalProperties);
 
   const fieldConfiguration = {
+    Name: { formatter: RainbowFormatter },
     Type: {},
     Nullable: {},
     Description: {},
