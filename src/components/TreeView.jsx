@@ -53,7 +53,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
     );
 
     const secondLineRow = secondLineContent ? (
-      <tr key={`${node.id}-second-line`}>
+      <tr key={`${node.id}-second-line`} className="second-line-row">
         <td className="tree-cell">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {ancestorsLast.map((isAncestorLast, i) => (

@@ -50,11 +50,17 @@ tbody tr {
   background-color: var(--background-color);
 }
 
-tbody tr:not(.has-second-line) {
+tbody tr.has-second-line td,
+tbody tr.second-line-row td {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+tbody tr:not(.has-second-line) td {
   border-bottom: 1px solid var(--border-color);
 }
 
-tr:last-child {
+tbody tr.second-line-row td:not(:first-child) {
   border-bottom: 1px solid var(--border-color);
 }
 
