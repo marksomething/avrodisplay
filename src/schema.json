@@ -15,6 +15,15 @@
       "type": ["null", "string"],
       "description": "The user's email address."
     },
+    "phone_number": {
+      "type": "string",
+      "nullable": true,
+      "description": "The user's phone number."
+    },
+    "age": {
+      "type": ["integer", "string"],
+      "description": "The user's age, can be a number or a string."
+    },
     "address": {
       "type": "object",
       "properties": {

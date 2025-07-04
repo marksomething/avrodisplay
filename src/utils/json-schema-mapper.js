@@ -1,10 +1,22 @@
 let idCounter = 0;
 
 const parseType = (property) => {
+  let isNullable = false;
+  let typeString;
+
   if (Array.isArray(property.type)) {
-    return property.type.join(' | ');
+    const nonNullTypes = property.type.filter(t => t !== 'null');
+    isNullable = property.type.includes('null');
+    typeString = nonNullTypes.join(' | ');
+  } else {
+    typeString = property.type;
   }
-  return property.type;
+
+  if (property.nullable === true) {
+    isNullable = true;
+  }
+
+  return { type: typeString, isNullable };
 };
 
 const jsonSchemaToTree = (schema) => {
@@ -12,10 +24,11 @@ const jsonSchemaToTree = (schema) => {
 
   const processProperties = (properties) => {
     return Object.entries(properties).map(([name, property]) => {
+      const parsedType = parseType(property);
       const baseNode = {
         id: `node-${idCounter++}`,
         name,
-        properties: { Type: parseType(property), Description: property.description || '' },
+        properties: { Type: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
       };
 
       if (property.type === 'object' && property.properties) {

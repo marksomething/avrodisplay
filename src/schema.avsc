@@ -5,6 +5,8 @@
     { "name": "id", "type": "long" },
     { "name": "username", "type": "string" },
     { "name": "email", "type": ["null", "string"], "default": null },
+    { "name": "phone_number", "type": ["string", "null"], "default": null },
+    { "name": "age", "type": ["int", "string"] },
     {
       "name": "address",
       "type": {

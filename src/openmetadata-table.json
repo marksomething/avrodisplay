@@ -26,6 +26,22 @@
       "description": "The amount of the sale."
     },
     {
+      "name": "sale_date",
+      "dataType": "TIMESTAMP",
+      "description": "Timestamp of the sale."
+    },
+    {
+      "name": "sale_date",
+      "dataType": "TIMESTAMP",
+      "description": "Timestamp of the sale."
+    },
+    {
+      "name": "delivery_date",
+      "dataType": "TIMESTAMP",
+      "description": "Expected delivery date.",
+      "nullable": true
+    },
+    {
       "name": "customer_info",
       "dataType": "STRUCT",
       "description": "Information about the customer.",
