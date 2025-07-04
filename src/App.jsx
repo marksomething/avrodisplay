@@ -58,7 +58,7 @@ function App() {
 
   const fieldConfiguration = {
     Name: { formatter: RainbowFormatter },
-    Type: {},
+    DataType: {},
     Nullable: { formatter: NullableStatusDotFormatter },
     Description: {},
     Source: {},

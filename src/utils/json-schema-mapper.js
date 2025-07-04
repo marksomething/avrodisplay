@@ -17,12 +17,12 @@ const parseType = (property) => {
     if (property.items) {
       const itemType = property.items.type;
       if (typeof property.items === 'object' && property.items !== null && property.items.properties) {
-        typeString = `ARRAY[object]`;
+        typeString = `array[object]`;
       } else {
-        typeString = `ARRAY[${itemType}]`;
+        typeString = `array[${itemType}]`;
       }
     } else {
-      typeString = 'ARRAY';
+      typeString = 'array';
     }
   } else {
     typeString = property.type;
@@ -46,7 +46,7 @@ const jsonSchemaToTree = (schema) => {
       const baseNode = {
         id: `node-${idCounter++}`,
         name: name + (isArrayField ? '[]' : ''),
-        properties: { Type: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
+        properties: { DataType: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
       };
 
       if (property.type === 'object' && property.properties) {

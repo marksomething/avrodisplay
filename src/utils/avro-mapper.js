@@ -16,7 +16,7 @@ const parseType = (type) => {
   } else if (typeof type === 'object' && type !== null) {
     if (type.type === 'array') {
       const itemTypeResult = parseType(type.items);
-      typeString = `ARRAY[${itemTypeResult.type}]`;
+      typeString = `array[${itemTypeResult.type}]`;
     } else {
       typeString = type.type;
     }
@@ -37,7 +37,7 @@ const avroToTree = (schema) => {
     const baseNode = {
       id: `node-${idCounter++}`,
       name: field.name + (isArrayField ? '[]' : ''),
-      properties: { Type: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
+      properties: { DataType: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
     };
 
     if (typeof field.type === 'object' && field.type !== null && !Array.isArray(field.type)) {
