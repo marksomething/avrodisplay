@@ -50,19 +50,15 @@ tbody tr {
   background-color: var(--background-color);
 }
 
-tbody tr.has-second-line td,
+tbody tr.has-second-line td {
+  padding-bottom: 0;
+}
+
 tbody tr.second-line-row td {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  padding-top: 0;
 }
 
-tbody tr:not(.has-second-line) td {
-  border-bottom: 1px solid var(--border-color);
-}
 
-tbody tr.second-line-row td:not(:first-child) {
-  border-bottom: 1px solid var(--border-color);
-}
 
 .App {
     text-align: left;
