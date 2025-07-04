@@ -54,7 +54,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
       <thead>
         <tr>
           {headers.map((header) => (
-            <th key={header}>{header}</th>
+            <th key={header}>{(fieldConfiguration && fieldConfiguration[header] && fieldConfiguration[header].title) || header}</th>
           ))}
         </tr>
       </thead>

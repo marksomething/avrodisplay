@@ -57,12 +57,12 @@ function App() {
   );
 
   const fieldConfiguration = {
-    Name: { formatter: RainbowFormatter },
-    DataType: {},
-    Nullable: { formatter: NullableStatusDotFormatter },
-    Description: {},
-    Source: {},
-    PII: {},
+    Name: { formatter: RainbowFormatter, title: 'Field Name' },
+    DataType: { title: 'Data Type' },
+    Nullable: { formatter: NullableStatusDotFormatter, title: 'Is Nullable?' },
+    Description: { title: 'Description' },
+    Source: { title: 'Data Source' },
+    PII: { title: 'Sensitive Data' },
   };
 
   return (
