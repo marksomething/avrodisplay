@@ -1,8 +1,8 @@
 import React from 'react';
 
-const TreeIcon = ({ ancestorsLast, isLast, hasChildren, isExpanded, hasSecondLine }) => {
+const TreeIcon = ({ ancestorsLast, isLast, hasChildren, isExpanded }) => {
   const iconWidth = 20;
-  const iconHeight = hasSecondLine ? 60 : 40; // Adjust height if there's a second line
+  const iconHeight = 40; // Fixed height for the main line
   const strokeColor = 'var(--border-color)';
   const strokeWidth = 1;
   const dashArray = '2, 2';

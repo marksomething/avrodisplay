@@ -56,7 +56,37 @@ const TreeView = ({ data, fieldConfiguration }) => {
     const secondLineRow = secondLineContent ? (
       <tr key={`${node.id}-second-line`}>
         <td colSpan={headers.length} style={{ padding: '0 15px 8px 0' }}>
-          {secondLineContent}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {ancestorsLast.map((isAncestorLast, i) => (
+              <svg key={i} width="20" height="20" style={{ display: 'block' }}>
+                {!isAncestorLast && (
+                  <line
+                    x1="10"
+                    y1="0"
+                    x2="10"
+                    y2="20"
+                    stroke="var(--border-color)"
+                    strokeWidth="1"
+                    strokeDasharray="2, 2"
+                  />
+                )}
+              </svg>
+            ))}
+            <svg width="20" height="20" style={{ display: 'block' }}>
+              {!isLast && (
+                <line
+                  x1="10"
+                  y1="0"
+                  x2="10"
+                  y2="20"
+                  stroke="var(--border-color)"
+                  strokeWidth="1"
+                  strokeDasharray="2, 2"
+                />
+              )}
+            </svg>
+            {secondLineContent}
+          </div>
         </td>
       </tr>
     ) : null;
