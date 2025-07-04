@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import TreeView from './components/TreeView';
 import './App.css';
 import avroSchemaRaw from './schema.avsc?raw';
-import jsonSchemaRaw from './schema.json?raw';
+import jsonSchemaRaw from '././schema.json?raw';
 import openMetadataTableRaw from './openmetadata-table.json?raw';
 import avroToTree from './utils/avro-mapper';
 import jsonSchemaToTree from './utils/json-schema-mapper';
 import openMetadataToTree from './utils/openmetadata-mapper';
+import mergeData from './utils/data-merger';
 
 function App() {
   const [schemaType, setSchemaType] = useState('avro');
@@ -30,6 +31,25 @@ function App() {
       data = [];
   }
 
+  const additionalProperties = {
+    // Avro example
+    'id': { 'Source': 'DB', 'PII': 'Yes' },
+    'username': { 'Source': 'API' },
+    'address.street': { 'Source': 'DB' },
+    'orders[].order_id': { 'Source': 'Kafka' },
+    'tags[]': { 'Source': 'Manual' },
+
+    // JSON Schema example
+    'address.zip_code': { 'Source': 'External' },
+    'orders[].total_amount': { 'Source': 'Stripe' },
+
+    // OpenMetadata example
+    'product_name': { 'Source': 'ERP' },
+    'line_items[].quantity': { 'Source': 'Warehouse' },
+  };
+
+  const mergedData = mergeData(data, additionalProperties);
+
   return (
     <div className="App">
       <h1>Schema Tree View</h1>
@@ -38,7 +58,7 @@ function App() {
         <button onClick={() => setSchemaType('json')}>JSON Schema</button>
         <button onClick={() => setSchemaType('openmetadata')}>OpenMetadata Table</button>
       </div>
-      <TreeView data={data} />
+      <TreeView data={mergedData} />
     </div>
   );
 }
