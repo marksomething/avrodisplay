@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TreeView from './components/TreeView';
 import RainbowFormatter from './components/RainbowFormatter';
+import StatusDotFormatter from './components/StatusDotFormatter';
 import './App.css';
 import avroSchemaRaw from './schema.avsc?raw';
 import jsonSchemaRaw from '././schema.json?raw';
@@ -54,7 +55,7 @@ function App() {
   const fieldConfiguration = {
     Name: { formatter: RainbowFormatter },
     Type: {},
-    Nullable: {},
+    Nullable: { formatter: StatusDotFormatter, formatterProps: { colorMap: { 'Yes': '#28a745', 'No': '#dc3545' } } },
     Description: {},
     Source: {},
     PII: {},
