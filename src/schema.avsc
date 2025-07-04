@@ -22,6 +22,18 @@
       }
     },
     {
+      "name": "profile",
+      "type": {
+        "type": "record",
+        "name": "Profile",
+        "fields": [
+          { "name": "bio", "type": "string", "doc": "A short biography of the user." },
+          { "name": "avatar", "type": ["null", "string"], "default": null, "doc": "URL to the user's avatar image." },
+          { "name": "secondary_contact", "type": ["string", "long"], "doc": "A secondary contact method, either a phone number (string) or an internal ID (long)." }
+        ]
+      }
+    },
+    {
       "name": "orders",
       "type": {
         "type": "array",
@@ -31,7 +43,22 @@
           "fields": [
             { "name": "order_id", "type": "long" },
             { "name": "order_date", "type": "string" },
-            { "name": "total_amount", "type": "double" }
+            { "name": "total_amount", "type": "double" },
+            {
+              "name": "products",
+              "type": {
+                "type": "array",
+                "items": {
+                  "type": "record",
+                  "name": "Product",
+                  "fields": [
+                    { "name": "product_id", "type": "long" },
+                    { "name": "name", "type": "string" },
+                    { "name": "price", "type": "double" }
+                  ]
+                }
+              }
+            }
           ]
         }
       },
