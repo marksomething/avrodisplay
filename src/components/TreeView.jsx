@@ -3,12 +3,16 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import TreeIcon from './TreeIcon';
 
-const TreeView = ({ data }) => {
+const TreeView = ({ data, fieldConfiguration }) => {
   const [expanded, setExpanded] = useState({});
 
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const headers = fieldConfiguration
+    ? ['Name', ...Object.keys(fieldConfiguration)]
+    : (data.length > 0 ? ['Name', ...Object.keys(data[0].properties)] : []);
 
   const renderNode = (node, ancestorsLast = [], isLast = true) => {
     const isExpanded = expanded[node.id];
@@ -24,8 +28,8 @@ const TreeView = ({ data }) => {
             </span>
           </div>
         </td>
-        {Object.values(node.properties).map((value, index) => (
-          <td key={index}>{String(value)}</td>
+        {headers.slice(1).map((header) => (
+          <td key={header}>{String(node.properties[header] || '')}</td>
         ))}
       </tr>
     );
@@ -36,8 +40,6 @@ const TreeView = ({ data }) => {
 
     return [nodeRow, ...childRows];
   };
-
-  const headers = data.length > 0 ? ['Name', ...Object.keys(data[0].properties)] : [];
 
   return (
     <table>
@@ -64,6 +66,7 @@ TreeView.propTypes = {
       properties: PropTypes.object.isRequired,
     })
   ).isRequired,
+  fieldConfiguration: PropTypes.object,
 };
 
 export default TreeView;

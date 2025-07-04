@@ -33,7 +33,7 @@ function App() {
 
   const additionalProperties = {
     // Avro example
-    'id': { 'Source': 'DB', 'PII': 'Yes' },
+    'id': { 'Source': 'DB', 'PII': 'Yes', 'hiddenValue1': 'a' },
     'username': { 'Source': 'API' },
     'address.street': { 'Source': 'DB' },
     'orders[].order_id': { 'Source': 'Kafka' },
@@ -50,6 +50,14 @@ function App() {
 
   const mergedData = mergeData(data, additionalProperties);
 
+  const fieldConfiguration = {
+    Type: {},
+    Nullable: {},
+    Description: {},
+    Source: {},
+    PII: {},
+  };
+
   return (
     <div className="App">
       <h1>Schema Tree View</h1>
@@ -58,7 +66,7 @@ function App() {
         <button onClick={() => setSchemaType('json')}>JSON Schema</button>
         <button onClick={() => setSchemaType('openmetadata')}>OpenMetadata Table</button>
       </div>
-      <TreeView data={mergedData} />
+      <TreeView data={mergedData} fieldConfiguration={fieldConfiguration} />
     </div>
   );
 }
