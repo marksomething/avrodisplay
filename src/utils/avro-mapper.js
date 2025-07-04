@@ -9,16 +9,20 @@ const parseType = (type) => {
     isNullable = type.includes('null');
     typeString = nonNullTypes.map(t => {
       if (typeof t === 'object' && t !== null) {
-        return parseType(t).type;
+        const innerTypeResult = parseType(t);
+        return innerTypeResult.type;
       }
       return t;
     }).join(' | ');
   } else if (typeof type === 'object' && type !== null) {
     if (type.type === 'array') {
       const itemTypeResult = parseType(type.items);
-      typeString = `array[${itemTypeResult.type}]`;
+      typeString = `ARRAY[${itemTypeResult.type}]`;
     } else {
       typeString = type.type;
+      if (type.logicalType) {
+        typeString = `${typeString}:${type.logicalType}`;
+      }
     }
   } else {
     typeString = type;
@@ -32,12 +36,16 @@ const avroToTree = (schema) => {
 
   const processField = (field) => {
     const parsedType = parseType(field.type);
+    let dataType = parsedType.type;
+    if (field.logicalType && typeof field.type !== 'object') { // Apply logicalType only for primitive types directly on the field
+      dataType = `${dataType}:${field.logicalType}`;
+    }
     const isArrayField = typeof field.type === 'object' && field.type !== null && field.type.type === 'array';
 
     const baseNode = {
       id: `node-${idCounter++}`,
       name: field.name + (isArrayField ? '[]' : ''),
-      properties: { DataType: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
+      properties: { DataType: dataType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
     };
 
     if (typeof field.type === 'object' && field.type !== null && !Array.isArray(field.type)) {
