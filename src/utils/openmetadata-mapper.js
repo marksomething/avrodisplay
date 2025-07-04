@@ -7,7 +7,7 @@ const openMetadataToTree = (schema) => {
     const baseNode = {
       id: `node-${idCounter++}`,
       name: column.name,
-      properties: { DataType: column.dataType },
+      properties: { DataType: column.dataType, Description: column.description || '' },
     };
 
     if (column.children && column.dataType === 'STRUCT') {

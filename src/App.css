@@ -3,7 +3,7 @@
   --background-color: #ffffff;
   --header-bg: #f2f2f2;
   --row-alt-bg: #f9f9f9;
-  --border-color: #ddd;
+  --border-color: #a9a9a9;
 }
 
 @media (prefers-color-scheme: dark) {

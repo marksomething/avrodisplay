@@ -15,7 +15,7 @@ const jsonSchemaToTree = (schema) => {
       const baseNode = {
         id: `node-${idCounter++}`,
         name,
-        properties: { Type: parseType(property) },
+        properties: { Type: parseType(property), Description: property.description || '' },
       };
 
       if (property.type === 'object' && property.properties) {

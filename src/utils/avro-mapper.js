@@ -17,7 +17,7 @@ const avroToTree = (schema) => {
     const baseNode = {
       id: `node-${idCounter++}`,
       name: field.name,
-      properties: { Type: parseType(field.type) },
+      properties: { Type: parseType(field.type), Description: field.doc || '' },
     };
 
     if (typeof field.type === 'object' && field.type !== null && !Array.isArray(field.type)) {
