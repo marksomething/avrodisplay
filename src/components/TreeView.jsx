@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import TreeIcon from './TreeIcon';
@@ -14,13 +13,13 @@ const TreeView = ({ data, fieldConfiguration }) => {
     ? ['Name', ...Object.keys(fieldConfiguration).filter(header => header !== 'Name' && !fieldConfiguration[header]?.renderAsSecondLine)]
     : (data.length > 0 ? ['Name', ...Object.keys(data[0].properties)] : []);
 
-  const renderNode = (node, ancestorsLast = [], isLast = true) => {
+  const renderNode = (node, ancestorsLast = [], isLast = true, rowIndex) => {
     const isExpanded = expanded[node.id];
     const hasChildren = node.children && node.children.length > 0;
 
     const secondLineFields = Object.keys(fieldConfiguration).filter(header => fieldConfiguration[header]?.renderAsSecondLine);
     const secondLineContent = secondLineFields.length > 0 ? (
-      <div style={{ paddingLeft: `${(ancestorsLast.length + 1) * 20}px`, marginTop: '5px' }}>
+      <div>
         {secondLineFields.map(header => {
           const value = node.properties[header];
           const Formatter = fieldConfiguration[header]?.formatter;
@@ -29,8 +28,10 @@ const TreeView = ({ data, fieldConfiguration }) => {
       </div>
     ) : null;
 
+    const rowBackgroundColor = rowIndex % 2 === 0 ? 'var(--background-color)' : 'var(--row-alt-bg)';
+
     const nodeRow = (
-      <tr key={node.id}>
+      <tr key={node.id} style={{ backgroundColor: rowBackgroundColor }}>
         <td className="tree-cell">
           <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => hasChildren && toggleExpand(node.id)} style={{ cursor: hasChildren ? 'pointer' : 'default' }}>
             <TreeIcon ancestorsLast={ancestorsLast} isLast={isLast} hasChildren={hasChildren} isExpanded={isExpanded} hasSecondLine={!!secondLineContent} />
@@ -54,17 +55,17 @@ const TreeView = ({ data, fieldConfiguration }) => {
     );
 
     const secondLineRow = secondLineContent ? (
-      <tr key={`${node.id}-second-line`}>
-        <td colSpan={headers.length} style={{ padding: '0 15px 8px 0' }}>
+      <tr key={`${node.id}-second-line`} style={{ backgroundColor: rowBackgroundColor }}>
+        <td className="tree-cell">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {ancestorsLast.map((isAncestorLast, i) => (
-              <svg key={i} width="20" height="20" style={{ display: 'block' }}>
+              <svg key={i} width="20" height="40" style={{ display: 'block' }}>
                 {!isAncestorLast && (
                   <line
                     x1="10"
                     y1="0"
                     x2="10"
-                    y2="20"
+                    y2="40"
                     stroke="var(--border-color)"
                     strokeWidth="1"
                     strokeDasharray="2, 2"
@@ -72,27 +73,29 @@ const TreeView = ({ data, fieldConfiguration }) => {
                 )}
               </svg>
             ))}
-            <svg width="20" height="20" style={{ display: 'block' }}>
+            <svg width="20" height="40" style={{ display: 'block' }}>
               {!isLast && (
                 <line
                   x1="10"
                   y1="0"
                   x2="10"
-                  y2="20"
+                  y2="40"
                   stroke="var(--border-color)"
                   strokeWidth="1"
                   strokeDasharray="2, 2"
                 />
               )}
             </svg>
-            {secondLineContent}
           </div>
+        </td>
+        <td colSpan={headers.length - 1}>
+          {secondLineContent}
         </td>
       </tr>
     ) : null;
 
     const childRows = isExpanded && hasChildren
-      ? node.children.flatMap((child, index) => renderNode(child, [...ancestorsLast, isLast], index === node.children.length - 1))
+      ? node.children.flatMap((child, index) => renderNode(child, [...ancestorsLast, isLast], index === node.children.length - 1, rowIndex + 1))
       : [];
 
     return [nodeRow, secondLineRow, ...childRows].filter(Boolean);
@@ -108,7 +111,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
         </tr>
       </thead>
       <tbody>
-        {data.flatMap((node, index) => renderNode(node, [], index === data.length - 1))}
+        {data.flatMap((node, index) => renderNode(node, [], index === data.length - 1, index))}
       </tbody>
     </table>
   );
