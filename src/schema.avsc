@@ -2,11 +2,12 @@
   "type": "record",
   "name": "User",
   "fields": [
-    { "name": "id", "type": "long" },
-    { "name": "username", "type": "string" },
-    { "name": "email", "type": ["null", "string"], "default": null },
-    { "name": "phone_number", "type": ["string", "null"], "default": null },
-    { "name": "age", "type": ["int", "string"] },
+    { "name": "id", "type": "long", "doc": "Unique identifier for the user." },
+    { "name": "username", "type": "string", "doc": "User's chosen username." },
+    { "name": "email", "type": ["null", "string"], "default": null, "doc": "User's email address, can be null." },
+    { "name": "phone_number", "type": ["string", "null"], "default": null, "doc": "User's phone number, optional." },
+    { "name": "age", "type": ["int", "string"], "doc": "User's age, can be an integer or a string representation." },
+    { "name": "registration_date", "type": "long", "doc": "Timestamp of user registration." },
     {
       "name": "address",
       "type": {
