@@ -23,7 +23,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
         {secondLineFields.map(header => {
           const value = node.properties[header];
           const Formatter = fieldConfiguration[header]?.formatter;
-          return Formatter ? React.createElement(Formatter, null, value) : String(value || '');
+          return Formatter ? React.createElement(Formatter, { key: header }, value) : <span key={header}>{String(value || '')}</span>;
         })}
       </div>
     ) : null;
