@@ -16,10 +16,14 @@ const parseType = (type) => {
     }).join(' | ');
   } else if (typeof type === 'object' && type !== null) {
     if (type.type === 'array') {
-      const itemTypeResult = parseType(type.items);
-      typeString = `ARRAY[${itemTypeResult.type}]`;
+        const itemTypeResult = parseType(type.items);
+        typeString = `array[${itemTypeResult.type}]`;
     } else {
-      typeString = type.type;
+      if (type.type === 'record' && type.name) {
+        typeString = type.name;
+      } else {
+        typeString = type.type;
+      }
       if (type.logicalType) {
         typeString = `${typeString}:${type.logicalType}`;
       }
