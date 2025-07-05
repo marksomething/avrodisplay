@@ -71,6 +71,41 @@
         "items": "string"
       },
       "doc": "List of tags associated with the user."
+    },
+    {
+      "name": "interactions",
+      "type": {
+        "type": "array",
+        "items": [
+          {
+            "name": "PhoneInteraction",
+            "type": "record",
+            "fields": [
+              { "name": "duration_minutes", "type": "int" },
+              { "name": "phone_number", "type": "string" },
+              { "name": "call_type", "type": { "type": "enum", "name": "CallType", "symbols": ["INBOUND", "OUTBOUND"] } }
+            ]
+          },
+          {
+            "name": "ChatInteraction",
+            "type": "record",
+            "fields": [
+              { "name": "chat_id", "type": "string" },
+              { "name": "message_count", "type": "int" },
+              { "name": "platform", "type": "string" }
+            ]
+          },
+          {
+            "name": "InPersonInteraction",
+            "type": "record",
+            "fields": [
+              { "name": "location", "type": "string" },
+              { "name": "meeting_purpose", "type": "string" }
+            ]
+          }
+        ]
+      },
+      "doc": "List of interactions with the user."
     }
   ]
 }
