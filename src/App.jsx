@@ -41,6 +41,7 @@ function App() {
     'address.street': { 'Source': 'DB' },
     'orders[].order_id': { 'Source': 'Kafka' },
     'tags[]': { 'Source': 'Manual' },
+    'interactions[][ChatInteraction].chat_id': { 'Source': 'ChatSystem' },
 
     // JSON Schema example
     'address.zip_code': { 'Source': 'External' },
