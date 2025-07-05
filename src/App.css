@@ -56,7 +56,7 @@ tbody tr.has-second-line td {
 
 tbody tr.second-line-row td {
   padding-top: 0;
-  margin-top: -5px; /* Adjust as needed */
+  vertical-align: top;
 }
 
 

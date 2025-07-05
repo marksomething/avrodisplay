@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TreeView from './components/TreeView';
 import RainbowFormatter from './components/RainbowFormatter';
 import StatusDotFormatter from './components/StatusDotFormatter';
+import ItalicFormatter from './components/ItalicFormatter';
 import './App.css';
 import avroSchemaRaw from './schema.avsc?raw';
 import jsonSchemaRaw from '././schema.json?raw';
@@ -57,11 +58,11 @@ function App() {
   );
 
   const fieldConfiguration = {
-    Name: { formatter: RainbowFormatter, title: 'Field Name' },
+    Name: { title: 'Field Name' },
     DataType: { title: 'Data Type' },
     Nullable: { formatter: NullableStatusDotFormatter, title: 'Is Nullable?' },
-    Description: { title: 'Description', renderAsSecondLine: true },
-    Source: { title: 'Data Source' },
+    Description: { formatter: ItalicFormatter, title: 'Description', renderAsSecondLine: true },
+    Source: { formatter: RainbowFormatter, title: 'Data Source' },
     PII: { title: 'Sensitive Data' },
   };
 
