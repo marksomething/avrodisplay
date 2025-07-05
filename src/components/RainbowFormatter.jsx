@@ -9,6 +9,10 @@ const RainbowFormatter = ({ children }) => {
     setStartIndex(Math.floor(Math.random() * 7));
   }, []);
 
+  if (children === null || typeof children === 'undefined') {
+    return '';
+  }
+
   if (typeof children !== 'string') {
     return String(children);
   }
