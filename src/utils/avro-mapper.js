@@ -99,27 +99,8 @@ const avroToTree = (schema) => {
                 };
                 if (unionType.type === 'record') {
                     unionNode.children = unionType.fields.map(f => processField(f, unionNodeFqn));
-                } else if (unionType.type === 'array') {
-                    if (Array.isArray(unionType.items)) {
-                        const nonNullInnerItemTypes = unionType.items.filter(t => t !== 'null');
-                        unionNode.children = nonNullInnerItemTypes.flatMap(innerUnionItemType => {
-                            if (typeof innerUnionItemType === 'object' && innerUnionItemType !== null) {
-                                const innerUnionItemTypeName = innerUnionItemType.name || innerUnionItemType.type;
-                                const innerUnionItemNodeFqn = `${unionNode.fqn}[${innerUnionItemTypeName}]`;
-                                const innerUnionItemNode = {
-                                    id: `node-${idCounter++}`,
-                                    name: `[${innerUnionItemTypeName}]`,
-                                    properties: { DataType: innerUnionItemTypeName, Nullable: 'No', Description: '' },
-                                    fqn: innerUnionItemNodeFqn
-                                };
-                                if (innerUnionItemType.type === 'record') {
-                                    innerUnionItemNode.children = innerUnionItemType.fields.map(f => processField(f, innerUnionItemNodeFqn));
-                                }
-                                return innerUnionItemNode;
-                            }
-                            return [];
-                        });
-                    } else if (typeof unionType.items === 'object' && unionType.items !== null && unionType.items.type === 'record') {
+                } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null) {
+                    if (unionType.items.type === 'record') {
                         unionNode.children = unionType.items.fields.map(f => processField(f, unionNodeFqn));
                     }
                 }

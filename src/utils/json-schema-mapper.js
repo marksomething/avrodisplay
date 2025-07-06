@@ -1,35 +1,25 @@
 let idCounter = 0;
 
 const parseType = (property) => {
-  let isNullable = false;
+  const isNullable = property.nullable === true || (Array.isArray(property.type) && property.type.includes('null'));
   let typeString;
 
-  if (Array.isArray(property.type)) {
-    const nonNullTypes = property.type.filter(t => t !== 'null');
-    isNullable = property.type.includes('null');
-    typeString = nonNullTypes.map(t => {
-      if (typeof t === 'object' && t !== null && t.type) {
-        return t.type;
-      }
-      return t;
-    }).join(' | ');
-  } else if (property.type === 'array') {
-    if (property.items) {
-      const itemType = property.items.type;
-      if (typeof property.items === 'object' && property.items !== null && property.items.properties) {
-        typeString = `array[object]`;
-      } else {
-        typeString = `array[${itemType}]`;
-      }
-    } else {
-      typeString = 'array';
-    }
+  const nonNullTypes = Array.isArray(property.type) ? property.type.filter(t => t !== 'null') : [property.type];
+
+  if (nonNullTypes.length === 1) {
+    typeString = nonNullTypes[0];
   } else {
-    typeString = property.type;
+    typeString = nonNullTypes.join(' | ');
   }
 
-  if (property.nullable === true) {
-    isNullable = true;
+  if (typeString === 'array') {
+    if (property.items) {
+      if (property.items.type) {
+        typeString = `array[${property.items.type}]`;
+      } else if (property.items.properties) {
+        typeString = 'array[object]';
+      }
+    }
   }
 
   return { type: typeString, isNullable };
