@@ -3,8 +3,9 @@ const mergeData = (treeData, additionalData) => {
 
   const generateFqnAndMerge = (nodes, parentFqn = '') => {
     return nodes.map(node => {
+      const isUnion = node.name.startsWith('[') & node.name.endsWith(']');
       const currentFieldName = node.name.endsWith('[]') ? node.name : node.name;
-      const currentFqn = parentFqn ? `${parentFqn}.${currentFieldName}` : currentFieldName;
+      const currentFqn = parentFqn ? isUnion ? `${parentFqn}${currentFieldName}` : `${parentFqn}.${currentFieldName}` : currentFieldName;
 
       const newNode = { ...node, fqn: currentFqn };
 
