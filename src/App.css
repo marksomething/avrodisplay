@@ -4,6 +4,8 @@
   --header-bg: #f2f2f2;
   --row-alt-bg: #f9f9f9;
   --border-color: #a9a9a9;
+  --raw-data-bg: #f0f0f0;
+  --raw-data-color: #333;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,6 +15,8 @@
     --header-bg: #3a3a3a;
     --row-alt-bg: #2e2e2e;
     --border-color: #888;
+    --raw-data-bg: #1a1a1a;
+    --raw-data-color: #f9f9f9;
   }
 }
 
@@ -63,4 +67,9 @@ tbody tr.second-line-row td {
 
 .App {
     text-align: left;
+}
+
+.raw-data-display {
+  background: var(--raw-data-bg);
+  color: var(--raw-data-color);
 }

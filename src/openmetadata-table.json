@@ -96,7 +96,6 @@
       "description": "User's preferred contact method, can be email or phone.",
       "children": [
         {
-          "name": "email_contact",
           "dataType": "STRUCT",
           "description": "Email contact details.",
           "children": [
@@ -112,7 +111,6 @@
           ]
         },
         {
-          "name": "phone_contact",
           "dataType": "STRUCT",
           "description": "Phone contact details.",
           "children": [
@@ -129,7 +127,6 @@
           ]
         },
         {
-          "name": "NULL",
           "dataType": "NULL"
         }
       ]

@@ -1,25 +1,26 @@
 const mergeData = (treeData, additionalData) => {
   if (!treeData || !additionalData) return treeData;
 
-  const traverseAndMerge = (nodes) => {
+  const generateFqnAndMerge = (nodes, parentFqn = '') => {
     return nodes.map(node => {
-      const fqn = node.fqn;
+      const currentFieldName = node.name.endsWith('[]') ? node.name : node.name;
+      const currentFqn = parentFqn ? `${parentFqn}.${currentFieldName}` : currentFieldName;
 
-      const newNode = { ...node };
+      const newNode = { ...node, fqn: currentFqn };
 
-      if (additionalData[fqn]) {
-        newNode.properties = { ...newNode.properties, ...additionalData[fqn] };
+      if (additionalData[currentFqn]) {
+        newNode.properties = { ...newNode.properties, ...additionalData[currentFqn] };
       }
 
       if (newNode.children && newNode.children.length > 0) {
-        newNode.children = traverseAndMerge(newNode.children);
+        newNode.children = generateFqnAndMerge(newNode.children, currentFqn);
       }
 
       return newNode;
     });
   };
 
-  return traverseAndMerge(treeData);
+  return generateFqnAndMerge(treeData);
 };
 
 export default mergeData;

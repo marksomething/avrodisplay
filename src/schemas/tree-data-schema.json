@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tree Data Format",
+  "description": "Schema for the intermediate tree data structure used by mapping and merging tools.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "Unique identifier for the node."
+      },
+      "name": {
+        "type": "string",
+        "description": "Display name of the node."
+      },
+      "properties": {
+        "type": "object",
+        "description": "Key-value pairs representing properties of the node.",
+        "additionalProperties": {
+          "type": ["string", "number", "boolean", "null"],
+          "description": "Value of the property."
+        }
+      },
+      "fqn": {
+        "type": "string",
+        "description": "Fully Qualified Name of the node, used for merging."
+      },
+      "children": {
+        "type": "array",
+        "description": "Array of child nodes, recursively following this schema.",
+        "items": { "$ref": "#" }
+      }
+    },
+    "required": ["id", "name", "properties", "fqn"],
+    "additionalProperties": false
+  }
+}

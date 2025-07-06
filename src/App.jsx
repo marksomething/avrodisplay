@@ -14,24 +14,31 @@ import mergeData from './utils/data-merger';
 
 function App() {
   const [schemaType, setSchemaType] = useState('avro');
+  const [showRawData, setShowRawData] = useState(false);
+  const [showMergedData, setShowMergedData] = useState(false);
 
   const avroSchema = JSON.parse(avroSchemaRaw);
   const jsonSchema = JSON.parse(jsonSchemaRaw);
   const openMetadataTable = JSON.parse(openMetadataTableRaw);
 
+  let rawSchemaDisplay;
   let data;
   switch (schemaType) {
     case 'avro':
       data = avroToTree(avroSchema);
+      rawSchemaDisplay = avroSchema;
       break;
     case 'json':
       data = jsonSchemaToTree(jsonSchema);
+      rawSchemaDisplay = jsonSchema;
       break;
     case 'openmetadata':
       data = openMetadataToTree(openMetadataTable);
+      rawSchemaDisplay = openMetadataTable;
       break;
     default:
       data = [];
+      rawSchemaDisplay = {};
   }
 
   const additionalProperties = {
@@ -42,14 +49,23 @@ function App() {
     'orders[].order_id': { 'Source': 'Kafka' },
     'tags[]': { 'Source': 'Manual' },
     'interactions[][ChatInteraction].chat_id': { 'Source': 'ChatSystem' },
+    'interactions[][PhoneInteraction].duration': { 'Unit': 'seconds' },
 
     // JSON Schema example
     'address.zip_code': { 'Source': 'External' },
     'orders[].total_amount': { 'Source': 'Stripe' },
+    'contact_info[EmailContact].email_address': { 'Validation': 'Strict' },
+    'contact_info[PhoneContact].phone_number': { 'Region': 'US' },
+    'payment_method[CreditCard].card_type': { 'Processor': 'Visa' },
+    'user_status[DetailedStatus].message': { 'Severity': 'High' },
 
     // OpenMetadata example
     'product_name': { 'Source': 'ERP' },
     'line_items[].quantity': { 'Source': 'Warehouse' },
+    'customer_info.email': { 'Verified': 'Yes' },
+    'contact_preference[email_contact].email_address': { 'Type': 'Work' },
+    'contact_preference[phone_contact].phone_number': { 'Type': 'Mobile' },
+    'status[VARCHAR]': { 'Category': 'Operational' },
   };
 
   const mergedData = mergeData(data, additionalProperties);
@@ -65,6 +81,7 @@ function App() {
     Description: { formatter: ItalicFormatter, title: 'Description', renderAsSecondLine: true },
     Source: { formatter: RainbowFormatter, title: 'Data Source' },
     PII: { title: 'Sensitive Data' },
+    Processor: {}
   };
 
   return (
@@ -76,6 +93,28 @@ function App() {
         <button onClick={() => setSchemaType('openmetadata')}>OpenMetadata Table</button>
       </div>
       <TreeView data={mergedData} fieldConfiguration={fieldConfiguration} />
+
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={() => setShowRawData(!showRawData)}>
+          {showRawData ? 'Hide Raw Data' : 'Show Raw Data'}
+        </button>
+        {showRawData && (
+          <pre className="raw-data-display" style={{ padding: '10px', borderRadius: '5px', overflowX: 'auto' }}>
+            <code>{JSON.stringify(rawSchemaDisplay, null, 2)}</code>
+          </pre>
+        )}
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={() => setShowMergedData(!showMergedData)}>
+          {showMergedData ? 'Hide Merged Data' : 'Show Merged Data'}
+        </button>
+        {showMergedData && (
+          <pre className="raw-data-display" style={{ padding: '10px', borderRadius: '5px', overflowX: 'auto' }}>
+            <code>{JSON.stringify(mergedData, null, 2)}</code>
+          </pre>
+        )}
+      </div>
     </div>
   );
 }

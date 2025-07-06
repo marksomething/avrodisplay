@@ -50,6 +50,68 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "List of tags associated with the user."
+    },
+    "contact_info": {
+      "description": "Contact information, can be a phone number or an email.",
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "EmailContact",
+          "properties": {
+            "email_address": { "type": "string", "format": "email" }
+          },
+          "required": ["email_address"]
+        },
+        {
+          "type": "object",
+          "title": "PhoneContact",
+          "properties": {
+            "phone_number": { "type": "string", "pattern": "^\\+[1-9]\\d{1,14}$" }
+          },
+          "required": ["phone_number"]
+        },
+        { "type": "null" }
+      ]
+    },
+    "payment_method": {
+      "description": "User's preferred payment method.",
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "CreditCard",
+          "properties": {
+            "card_type": { "type": "string" },
+            "last_four": { "type": "string" }
+          },
+          "required": ["card_type", "last_four"]
+        },
+        {
+          "type": "object",
+          "title": "PayPal",
+          "properties": {
+            "email": { "type": "string", "format": "email" }
+          },
+          "required": ["email"]
+        }
+      ]
+    },
+    "user_status": {
+      "description": "Current status of the user, can be a string, an integer code, or a detailed status object.",
+      "oneOf": [
+        { "type": "string", "title": "StatusString" },
+        { "type": "integer", "title": "StatusCode" },
+        {
+          "type": "object",
+          "title": "DetailedStatus",
+          "properties": {
+            "code": { "type": "integer" },
+            "message": { "type": "string" },
+            "timestamp": { "type": "string", "format": "date-time" }
+          },
+          "required": ["code", "message"]
+        },
+        { "type": "null" }
+      ]
     }
   },
   "required": ["id", "username"]
