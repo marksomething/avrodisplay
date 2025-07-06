@@ -30,6 +30,64 @@ const jsonSchemaToTree = (schema) => {
 
   const processProperties = (properties) => {
     return Object.entries(properties).map(([name, property]) => {
+      if (property.oneOf) {
+        const { oneOf, description } = property;
+        const isNullable = oneOf.some(t => t.type === 'null');
+        const nonNullTypes = oneOf.filter(t => t.type !== 'null');
+
+        const isComplex = (type) => type.type === 'object' || (type.type === 'array' && type.items && type.items.properties);
+
+        const simpleTypes = nonNullTypes.filter(t => !isComplex(t));
+        const complexTypes = nonNullTypes.filter(t => isComplex(t));
+
+        const dataTypeStrings = nonNullTypes.map(t => {
+          if (t.type === 'array' && t.items && t.items.type) {
+            return `array[${t.items.type}]`;
+          }
+          if (t.type === 'array' && t.items && t.items.properties) {
+            return 'array[object]';
+          }
+          return t.type;
+        });
+        const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
+        const dataTypeString = uniqueDataTypeStrings.join(' | ');
+
+        const baseNode = {
+          id: `node-${idCounter++}`,
+          name: name,
+          properties: {
+            DataType: dataTypeString,
+            Nullable: isNullable ? 'Yes' : 'No',
+            Description: description || ''
+          },
+        };
+
+        const children = complexTypes.map(complexType => {
+          const typeName = complexType.title || complexType.type;
+          const childNode = {
+            id: `node-${idCounter++}`,
+            name: `[${typeName}]`,
+            properties: { DataType: typeName, Nullable: 'No', Description: complexType.description || '' },
+          };
+
+          if (complexType.type === 'object' && complexType.properties) {
+            childNode.children = processProperties(complexType.properties);
+          } else if (complexType.type === 'array' && complexType.items && complexType.items.properties) {
+            childNode.name = `[array[object]]`;
+            childNode.properties.DataType = 'array[object]';
+            childNode.children = processProperties(complexType.items.properties);
+          }
+          return childNode;
+        });
+
+        if (children.length > 0) {
+          baseNode.children = children;
+        }
+
+        return baseNode;
+      }
+
+      // Fallback to original logic for non-oneOf properties
       const parsedType = parseType(property);
       const isArrayField = property.type === 'array';
 
