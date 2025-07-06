@@ -64,23 +64,38 @@ const avroToTree = (schema) => {
       } else if (field.type.type === 'array') {
         if (Array.isArray(field.type.items)) {
             const nonNullItemTypes = field.type.items.filter(t => t !== 'null');
-            children = nonNullItemTypes.flatMap(unionItemType => {
-                if (typeof unionItemType === 'object' && unionItemType !== null) {
-                    const unionItemTypeName = unionItemType.name || unionItemType.type;
-                    const unionItemNodeFqn = `${baseNode.fqn}[${unionItemTypeName}]`;
+            if (nonNullItemTypes.length > 1) {
+                children = nonNullItemTypes.map(unionItemType => {
+                    let unionItemTypeName;
+                    let unionItemDataType;
+                    let unionItemChildren = [];
+
+                    if (typeof unionItemType === 'object' && unionItemType !== null) {
+                        unionItemTypeName = unionItemType.name || unionItemType.type;
+                        unionItemDataType = unionItemTypeName;
+                        if (unionItemType.type === 'record') {
+                            unionItemChildren = unionItemType.fields.map(f => processField(f, `${baseNode.fqn}[${unionItemTypeName}]`));
+                        }
+                    } else {
+                        unionItemTypeName = unionItemType;
+                        unionItemDataType = unionItemType;
+                    }
+
                     const unionItemNode = {
                         id: `node-${idCounter++}`,
                         name: `[${unionItemTypeName}]`,
-                        properties: { DataType: unionItemTypeName, Nullable: 'No', Description: '' },
-                        fqn: unionItemNodeFqn
+                        properties: { DataType: unionItemDataType, Nullable: 'No', Description: '' },
+                        fqn: `${baseNode.fqn}[${unionItemTypeName}]`
                     };
-                    if (unionItemType.type === 'record') {
-                        unionItemNode.children = unionItemType.fields.map(f => processField(f, unionItemNodeFqn));
+
+                    if (unionItemChildren.length > 0) {
+                        unionItemNode.children = unionItemChildren;
                     }
                     return unionItemNode;
-                }
-                return [];
-            });
+                });
+            } else if (nonNullItemTypes.length === 1 && typeof nonNullItemTypes[0] === 'object' && nonNullItemTypes[0] !== null && nonNullItemTypes[0].type === 'record') {
+                children = nonNullItemTypes[0].fields.map(f => processField(f, baseNode.fqn));
+            }
         } else if (typeof field.type.items === 'object' && field.type.items !== null && field.type.items.type === 'record') {
           children = field.type.items.fields.map(f => processField(f, baseNode.fqn));
         }

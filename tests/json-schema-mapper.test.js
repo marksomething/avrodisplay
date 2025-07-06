@@ -1,0 +1,222 @@
+import { describe, it, expect } from 'vitest';
+import jsonSchemaToTree from '../src/utils/json-schema-mapper';
+
+describe('jsonSchemaToTree', () => {
+  it('should correctly map a simple JSON schema', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        id: { type: 'integer', description: 'User ID' },
+        name: { type: 'string' },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(2);
+    expect(tree[0]).toMatchObject({
+      name: 'id',
+      properties: { DataType: 'integer', Nullable: 'No', Description: 'User ID' }
+    });
+    expect(tree[1]).toMatchObject({
+      name: 'name',
+      properties: { DataType: 'string', Nullable: 'No', Description: '' }
+    });
+  });
+
+  it('should handle nullable fields using array type', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        email: { type: ['string', 'null'] },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0]).toMatchObject({
+      name: 'email',
+      properties: { DataType: 'string', Nullable: 'Yes' }
+    });
+  });
+
+  it('should handle nullable fields using nullable keyword', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        phone: { type: 'string', nullable: true },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0]).toMatchObject({
+      name: 'phone',
+      properties: { DataType: 'string', Nullable: 'Yes' }
+    });
+  });
+
+  it('should handle nested objects', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        address: {
+          type: 'object',
+          properties: {
+            street: { type: 'string' },
+            city: { type: 'string' },
+          },
+        },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0].name).toBe('address');
+    expect(tree[0].children).toHaveLength(2);
+    expect(tree[0].children[0]).toMatchObject({
+      name: 'street',
+      properties: { DataType: 'string', Nullable: 'No' },
+    });
+    expect(tree[0].children[1]).toMatchObject({
+      name: 'city',
+      properties: { DataType: 'string', Nullable: 'No' },
+    });
+  });
+
+  it('should handle array of primitive types', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        tags: { type: 'array', items: { type: 'string' } },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0]).toMatchObject({
+      name: 'tags[]',
+      properties: { DataType: 'array[string]', Nullable: 'No' },
+    });
+  });
+
+  it('should handle array of objects', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        items: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              itemId: { type: 'integer' },
+              quantity: { type: 'integer' },
+            },
+          },
+        },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0].name).toBe('items[]');
+    expect(tree[0].children).toHaveLength(2);
+    expect(tree[0].children[0]).toMatchObject({
+      name: 'itemId',
+      properties: { DataType: 'integer', Nullable: 'No' }
+    });
+    expect(tree[0].children[1]).toMatchObject({
+      name: 'quantity',
+      properties: { DataType: 'integer', Nullable: 'No' }
+    });
+  });
+
+  it('should handle oneOf with multiple non-null options as child nodes (mixed types)', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        contact: {
+          oneOf: [
+            { type: 'string', format: 'email', title: 'EmailContact' },
+            { type: 'string', pattern: '^\+[1-9]\d{1,14}'},
+            { type: 'object', title: 'AddressContact', properties: { street: { type: 'string' } } },
+            { type: 'null' },
+          ],
+        },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0].name).toBe('contact');
+    expect(tree[0].properties.Nullable).toBe('Yes');
+    expect(tree[0].properties.DataType).toBe('EmailContact | string | AddressContact');
+    expect(tree[0].children).toHaveLength(3); // EmailContact, PhoneContact, AddressContact
+
+    expect(tree[0].children[0]).toMatchObject({
+      name: '[EmailContact]',
+      properties: { DataType: 'EmailContact', Nullable: 'No' },
+    });
+    expect(tree[0].children[2]).toMatchObject({
+      name: '[AddressContact]',
+      properties: { DataType: 'AddressContact', Nullable: 'No' }
+    });
+    expect(tree[0].children[2].children).toHaveLength(1);
+    expect(tree[0].children[2].children[0]).toMatchObject({
+      name: 'street',
+      properties: { DataType: 'string', Nullable: 'No' }
+    });
+  });
+
+  it('should handle oneOf with only primitive types as child nodes', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        value: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'integer' },
+            { type: 'null' },
+          ],
+        },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0].name).toBe('value');
+    expect(tree[0].properties.Nullable).toBe('Yes');
+    expect(tree[0].properties.DataType).toBe('string | integer');
+    expect(tree[0].children).toHaveLength(2); // string, integer
+
+    expect(tree[0].children[0]).toMatchObject({
+      name: '[string]',
+      properties: { DataType: 'string', Nullable: 'No' },
+    });
+    expect(tree[0].children[1]).toMatchObject({
+      name: '[integer]',
+      properties: { DataType: 'integer', Nullable: 'No' },
+    });
+  });
+
+  it('should handle oneOf with only primitive types as child nodes', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        value: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'integer' },
+            { type: 'null' },
+          ],
+        },
+      },
+    };
+    const tree = jsonSchemaToTree(jsonSchema);
+    expect(tree).toHaveLength(1);
+    expect(tree[0].name).toBe('value');
+    expect(tree[0].properties.Nullable).toBe('Yes');
+    expect(tree[0].properties.DataType).toBe('string | integer');
+    expect(tree[0].children).toHaveLength(2); // string, integer
+
+    expect(tree[0].children[0]).toMatchObject({
+      name: '[string]',
+      properties: { DataType: 'string', Nullable: 'No' },
+    });
+    expect(tree[0].children[1]).toMatchObject({
+      name: '[integer]',
+      properties: { DataType: 'integer', Nullable: 'No' },
+    });
+  });
+});

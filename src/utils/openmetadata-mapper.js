@@ -64,8 +64,6 @@ const openMetadataToTree = (schema) => {
       }
     }
 
-
-
     const baseNode = {
       id: `node-${idCounter++}`,
       name: name,

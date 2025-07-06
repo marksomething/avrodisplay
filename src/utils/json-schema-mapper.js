@@ -72,7 +72,7 @@ const jsonSchemaToTree = (schema) => {
             childDataType = typeName;
           } else if (unionType.title) {
             typeName = unionType.title;
-            childDataType = unionType.title;
+            childDataType = typeName;
           } else if (unionType.type === 'array' && unionType.items) {
             if (unionType.items.type) {
               typeName = `array[${unionType.items.type}]`;
