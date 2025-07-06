@@ -1,12 +1,37 @@
 let idCounter = 0;
+let structCounter = 0;
 
 const openMetadataToTree = (schema) => {
   if (!schema) return [];
 
+  structCounter = 0; // Reset for each new schema processing
+
   const processColumn = (column) => {
     let dataType = column.dataType;
-    let name = column.name;
+    let name;
     let children = [];
+
+    // Determine the name for the current node
+    if (column.dataType === 'STRUCT') {
+        if (column.name) {
+            name = column.name;
+        } else {
+            // Assign a generated name for anonymous structs
+            name = `STRUCT_${++structCounter}`;
+        }
+    } else if (column.dataType === 'ARRAY') {
+        name = column.name;
+    } else if (column.name) {
+        name = column.name;
+    } else {
+        name = column.dataType;
+    }
+
+    let isNullable = column.nullable || false;
+    if (dataType === 'UNION' && column.children) {
+      const hasNullChild = column.children.some(c => c.dataType === 'NULL');
+      isNullable = isNullable || hasNullChild;
+    }
 
     if (dataType === 'ARRAY') {
       dataType = `ARRAY[${column.arrayDataType}]`;
@@ -32,16 +57,19 @@ const openMetadataToTree = (schema) => {
 
         children = nonNullTypes.map(unionType => {
           const unionNode = processColumn(unionType);
-          unionNode.name = `[${unionNode.name}]`; // Add brackets to union child names
+          // For union children, always wrap the name in brackets
+          unionNode.name = `[${unionNode.name}]`;
           return unionNode;
         });
       }
     }
 
+
+
     const baseNode = {
       id: `node-${idCounter++}`,
       name: name,
-      properties: { DataType: dataType, Nullable: column.nullable ? 'Yes' : 'No', Description: column.description || '' },
+      properties: { DataType: dataType, Nullable: isNullable ? 'Yes' : 'No', Description: column.description || '' },
     };
 
     if (children.length > 0) {
