@@ -87,27 +87,40 @@ const avroToTree = (schema) => {
       }
     } else if (Array.isArray(field.type)) {
         const nonNullTypes = field.type.filter(t => t !== 'null');
-        children = nonNullTypes.flatMap(unionType => {
-            if (typeof unionType === 'object' && unionType !== null) {
-                const unionTypeName = unionType.name || unionType.type;
-                const unionNodeFqn = `${baseNode.fqn}[${unionTypeName}]`;
+        if (nonNullTypes.length > 1) { // If there's more than one non-null type in the union
+            children = nonNullTypes.map(unionType => {
+                let unionTypeName;
+                let unionDataType;
+                let unionChildren = [];
+
+                if (typeof unionType === 'object' && unionType !== null) {
+                    // Handle complex types (records, arrays of records)
+                    unionTypeName = unionType.name || unionType.type;
+                    unionDataType = unionTypeName;
+                    if (unionType.type === 'record') {
+                        unionChildren = unionType.fields.map(f => processField(f, `${baseNode.fqn}[${unionTypeName}]`));
+                    } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null && unionType.items.type === 'record') {
+                        unionChildren = unionType.items.fields.map(f => processField(f, `${baseNode.fqn}[${unionTypeName}]`));
+                    }
+                } else {
+                    // Handle primitive types
+                    unionTypeName = unionType; // e.g., "string", "int"
+                    unionDataType = unionType;
+                }
+
                 const unionNode = {
                     id: `node-${idCounter++}`,
-                    name: `[${unionTypeName}]`,
-                    properties: { DataType: unionTypeName, Nullable: 'No', Description: '' },
-                    fqn: unionNodeFqn
+                    name: `[${unionTypeName}]`, // Display name for the child node
+                    properties: { DataType: unionDataType, Nullable: 'No', Description: '' }, // Nullable is 'No' for the specific union branch
+                    fqn: `${baseNode.fqn}[${unionTypeName}]` // FQN for the union branch
                 };
-                if (unionType.type === 'record') {
-                    unionNode.children = unionType.fields.map(f => processField(f, unionNodeFqn));
-                } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null) {
-                    if (unionType.items.type === 'record') {
-                        unionNode.children = unionType.items.fields.map(f => processField(f, unionNodeFqn));
-                    }
+
+                if (unionChildren.length > 0) {
+                    unionNode.children = unionChildren;
                 }
                 return unionNode;
-            }
-            return [];
-        });
+            });
+        }
     }
 
     if (children.length > 0) {

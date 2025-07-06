@@ -89,6 +89,70 @@
       "dataType": "ARRAY",
       "arrayDataType": "VARCHAR",
       "description": "List of payment methods used."
+    },
+    {
+      "name": "contact_preference",
+      "dataType": "UNION",
+      "description": "User's preferred contact method, can be email or phone.",
+      "children": [
+        {
+          "name": "email_contact",
+          "dataType": "STRUCT",
+          "description": "Email contact details.",
+          "children": [
+            {
+              "name": "email_address",
+              "dataType": "VARCHAR",
+              "dataLength": 255
+            },
+            {
+              "name": "is_verified",
+              "dataType": "BOOLEAN"
+            }
+          ]
+        },
+        {
+          "name": "phone_contact",
+          "dataType": "STRUCT",
+          "description": "Phone contact details.",
+          "children": [
+            {
+              "name": "phone_number",
+              "dataType": "VARCHAR",
+              "dataLength": 20
+            },
+            {
+              "name": "extension",
+              "dataType": "INT",
+              "nullable": true
+            }
+          ]
+        },
+        {
+          "name": "NULL",
+          "dataType": "NULL"
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "dataType": "UNION",
+      "description": "Current status of the record, can be a string or an integer code.",
+      "children": [
+        {
+          "name": "status_string",
+          "dataType": "VARCHAR",
+          "dataLength": 50
+        },
+        {
+          "name": "status_code",
+          "dataType": "INT"
+        },
+        {
+          "name": "NULL",
+          "dataType": "NULL"
+        }
+      ]
     }
   ],
   "databaseSchema": {
