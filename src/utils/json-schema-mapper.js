@@ -35,73 +35,77 @@ const jsonSchemaToTree = (schema) => {
         const isNullable = oneOf.some(t => t.type === 'null');
         const nonNullTypes = oneOf.filter(t => t.type !== 'null');
 
-        if (nonNullTypes.length > 1) {
-          const dataTypeStrings = nonNullTypes.map(t => {
-            if (t.type === 'object') {
-              return t.title || 'object';
-            }
-            if (t.type === 'array' && t.items && t.items.type) {
-              return `array[${t.items.type}]`;
-            }
-            if (t.type === 'array' && t.items && t.items.properties) {
-              return 'array[object]';
-            }
-            return t.type;
-          });
-          const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
-          const dataTypeString = uniqueDataTypeStrings.join(' | ');
+        const dataTypeStrings = nonNullTypes.map(t => {
+          if (t.title) {
+            return t.title;
+          }
+          if (t.type === 'object') {
+            return 'object';
+          }
+          if (t.type === 'array' && t.items && t.items.type) {
+            return `array[${t.items.type}]`;
+          }
+          if (t.type === 'array' && t.items && t.items.properties) {
+            return 'array[object]';
+          }
+          return t.type;
+        });
+        const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
+        const dataTypeString = uniqueDataTypeStrings.join(' | ');
 
-          const baseNode = {
+        const baseNode = {
+          id: `node-${idCounter++}`,
+          name: name,
+          properties: {
+            DataType: dataTypeString,
+            Nullable: isNullable ? 'Yes' : 'No',
+            Description: description || ''
+          },
+        };
+
+        const children = nonNullTypes.map(unionType => {
+          let typeName;
+          let childDataType;
+
+          if (unionType.type === 'object') {
+            typeName = unionType.title || 'object';
+            childDataType = typeName;
+          } else if (unionType.title) {
+            typeName = unionType.title;
+            childDataType = unionType.title;
+          } else if (unionType.type === 'array' && unionType.items) {
+            if (unionType.items.type) {
+              typeName = `array[${unionType.items.type}]`;
+              childDataType = typeName;
+            } else if (unionType.items.properties) {
+              typeName = 'array[object]';
+              childDataType = typeName;
+            } else {
+              typeName = 'array';
+              childDataType = 'array';
+            }
+          } else {
+            typeName = unionType.type;
+            childDataType = typeName;
+          }
+
+          const childNode = {
             id: `node-${idCounter++}`,
-            name: name,
-            properties: {
-              DataType: dataTypeString,
-              Nullable: isNullable ? 'Yes' : 'No',
-              Description: description || ''
-            },
+            name: `[${typeName}]`,
+            properties: { DataType: childDataType, Nullable: 'No', Description: unionType.description || '' },
           };
 
-          const children = nonNullTypes.map(unionType => {
-            let typeName;
-            let childDataType;
+          if (unionType.type === 'object' && unionType.properties) {
+            childNode.children = processProperties(unionType.properties);
+          } else if (unionType.type === 'array' && unionType.items && unionType.items.properties) {
+            childNode.children = processProperties(unionType.items.properties);
+          }
+          return childNode;
+        });
 
-            if (unionType.type === 'object') {
-              typeName = unionType.title || 'object';
-              childDataType = typeName;
-            } else if (unionType.type === 'array' && unionType.items) {
-              if (unionType.items.type) {
-                typeName = `array[${unionType.items.type}]`;
-                childDataType = typeName;
-              } else if (unionType.items.properties) {
-                typeName = 'array[object]';
-                childDataType = typeName;
-              } else {
-                typeName = 'array';
-                childDataType = 'array';
-              }
-            } else {
-              typeName = unionType.type;
-              childDataType = typeName;
-            }
+        baseNode.children = children;
 
-            const childNode = {
-              id: `node-${idCounter++}`,
-              name: `[${typeName}]`,
-              properties: { DataType: childDataType, Nullable: 'No', Description: unionType.description || '' },
-            };
-
-            if (unionType.type === 'object' && unionType.properties) {
-              childNode.children = processProperties(unionType.properties);
-            } else if (unionType.type === 'array' && unionType.items && unionType.items.properties) {
-              childNode.children = processProperties(unionType.items.properties);
-            }
-            return childNode;
-          });
-
-          baseNode.children = children;
-
-          return baseNode;
-        }
+        return baseNode;
       }
 
       // Fallback to original logic for non-oneOf properties
