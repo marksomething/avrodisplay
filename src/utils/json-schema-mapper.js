@@ -31,90 +31,94 @@ const parseType = (property) => {
 const jsonSchemaToTree = (schema) => {
   if (!schema) return [];
 
+  const processOneOf = (name, property, processProperties) => {
+    const { oneOf, description } = property;
+    const isNullable = oneOf.some(t => t.type === 'null');
+    const nonNullTypes = oneOf.filter(t => t.type !== 'null');
+
+    const dataTypeStrings = nonNullTypes.map(t => {
+      if (t.title) {
+        return t.title;
+      }
+      if (t.type === 'object') {
+        return 'object';
+      }
+      if (t.type === 'array' && t.items && t.items.type) {
+        return `array[${t.items.type}]`;
+      }
+      if (t.type === 'array' && t.items && t.items.properties) {
+        return 'array[object]';
+      }
+      return t.type;
+    });
+    const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
+    const formattedType = uniqueDataTypeStrings.join(' | ');
+
+    const baseNode = {
+      id: `node-${idCounter++}`,
+      name: name,
+      properties: {
+        rawType: 'union',
+        formattedType: formattedType,
+        Nullable: isNullable ? 'Yes' : 'No',
+        Description: description || ''
+      },
+    };
+
+    const children = nonNullTypes.map(unionType => {
+      let typeName;
+      let childFormattedType;
+      let childRawType;
+
+      if (unionType.type === 'object') {
+        typeName = unionType.title || 'object';
+        childFormattedType = typeName;
+        childRawType = 'object';
+      } else if (unionType.title) {
+        typeName = unionType.title;
+        childFormattedType = typeName;
+        childRawType = unionType.type;
+      } else if (unionType.type === 'array' && unionType.items) {
+        childRawType = 'array';
+        if (unionType.items.type) {
+          typeName = `array[${unionType.items.type}]`;
+          childFormattedType = typeName;
+        } else if (unionType.items.properties) {
+          typeName = 'array[object]';
+          childFormattedType = typeName;
+        } else {
+          typeName = 'array';
+          childFormattedType = 'array';
+        }
+      } else {
+        typeName = unionType.type;
+        childFormattedType = typeName;
+        childRawType = typeName;
+      }
+
+      const childNode = {
+        id: `node-${idCounter++}`,
+        name: `[${typeName}]`,
+        properties: { rawType: childRawType, formattedType: childFormattedType, Nullable: 'No', Description: unionType.description || '' },
+      };
+
+      if (unionType.type === 'object' && unionType.properties) {
+        childNode.children = processProperties(unionType.properties);
+      } else if (unionType.type === 'array' && unionType.items && unionType.items.properties) {
+        childNode.children = processProperties(unionType.items.properties);
+      }
+      return childNode;
+    });
+
+    baseNode.children = children;
+
+    return baseNode;
+  };
+
   const processProperties = (properties) => {
     return Object.entries(properties).map(([name, property]) => {
       if (property.oneOf) {
-        const { oneOf, description } = property;
-        const isNullable = oneOf.some(t => t.type === 'null');
-        const nonNullTypes = oneOf.filter(t => t.type !== 'null');
-
-        const dataTypeStrings = nonNullTypes.map(t => {
-          if (t.title) {
-            return t.title;
-          }
-          if (t.type === 'object') {
-            return 'object';
-          }
-          if (t.type === 'array' && t.items && t.items.type) {
-            return `array[${t.items.type}]`;
-          }
-          if (t.type === 'array' && t.items && t.items.properties) {
-            return 'array[object]';
-          }
-          return t.type;
-        });
-        const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
-        const formattedType = uniqueDataTypeStrings.join(' | ');
-
-        const baseNode = {
-          id: `node-${idCounter++}`,
-          name: name,
-          properties: {
-            rawType: 'union',
-            formattedType: formattedType,
-            Nullable: isNullable ? 'Yes' : 'No',
-            Description: description || ''
-          },
-        };
-
-        const children = nonNullTypes.map(unionType => {
-          let typeName;
-          let childFormattedType;
-          let childRawType;
-
-          if (unionType.type === 'object') {
-            typeName = unionType.title || 'object';
-            childFormattedType = typeName;
-            childRawType = 'object';
-          } else if (unionType.title) {
-            typeName = unionType.title;
-            childFormattedType = typeName;
-            childRawType = unionType.type;
-          } else if (unionType.type === 'array' && unionType.items) {
-            childRawType = 'array';
-            if (unionType.items.type) {
-              typeName = `array[${unionType.items.type}]`;
-              childFormattedType = typeName;
-            } else if (unionType.items.properties) {
-              typeName = 'array[object]';
-              childFormattedType = typeName;
-            } else {
-              typeName = 'array';
-              childFormattedType = 'array';
-            }
-          } else {
-            typeName = unionType.type;
-            childFormattedType = typeName;
-            childRawType = typeName;
-          }
-
-          const childNode = {
-            id: `node-${idCounter++}`,
-            name: `[${typeName}]`,
-            properties: { rawType: childRawType, formattedType: childFormattedType, Nullable: 'No', Description: unionType.description || '' },
-          };
-
-          if (unionType.type === 'object' && unionType.properties) {
-            childNode.children = processProperties(unionType.properties);
-          } else if (unionType.type === 'array' && unionType.items && unionType.items.properties) {
-            childNode.children = processProperties(unionType.items.properties);
-          }
-          return childNode;
-        });
-
-        baseNode.children = children;
-
-        return baseNode;
+        return processOneOf(name, property, processProperties);
       }
 
       // Fallback to original logic for non-oneOf properties

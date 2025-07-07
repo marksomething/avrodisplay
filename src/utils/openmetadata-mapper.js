@@ -6,6 +6,31 @@ const openMetadataToTree = (schema) => {
 
   structCounter = 0; // Reset for each new schema processing
 
+  const processUnionColumns = (unionColumns) => {
+    const nonNullTypes = unionColumns.filter(c => c.dataType !== 'NULL');
+    if (nonNullTypes.length > 1) {
+      const dataTypeStrings = nonNullTypes.map(t => {
+        if (t.name) {
+          return t.name;
+        }
+        if (t.dataType === 'ARRAY') {
+          return `ARRAY[${t.arrayDataType}]`;
+        }
+        return t.dataType;
+      });
+      const formattedType = dataTypeStrings.join(' | ');
+
+      const children = nonNullTypes.map(unionType => {
+        const unionNode = processColumn(unionType);
+        // For union children, always wrap the name in brackets
+        unionNode.name = `[${unionNode.name}]`;
+        return unionNode;
+      });
+      return { formattedType, children };
+    }
+    return { formattedType: '', children: [] };
+  };
+
   const processColumn = (column) => {
     let rawType = column.dataType;
     let formattedType = column.dataType;
@@ -43,26 +68,9 @@ const openMetadataToTree = (schema) => {
     } else if (rawType === 'STRUCT' && column.children) {
       children = column.children.map(processColumn);
     } else if (rawType === 'UNION' && column.children) {
-      const nonNullTypes = column.children.filter(c => c.dataType !== 'NULL');
-      if (nonNullTypes.length > 1) {
-        const dataTypeStrings = nonNullTypes.map(t => {
-          if (t.name) {
-            return t.name;
-          }
-          if (t.dataType === 'ARRAY') {
-            return `ARRAY[${t.arrayDataType}]`;
-          }
-          return t.dataType;
-        });
-        formattedType = dataTypeStrings.join(' | ');
-
-        children = nonNullTypes.map(unionType => {
-          const unionNode = processColumn(unionType);
-          // For union children, always wrap the name in brackets
-          unionNode.name = `[${unionNode.name}]`;
-          return unionNode;
-        });
-      }
+      const unionResult = processUnionColumns(column.children);
+      formattedType = unionResult.formattedType;
+      children = unionResult.children;
     }
 
     const baseNode = {
