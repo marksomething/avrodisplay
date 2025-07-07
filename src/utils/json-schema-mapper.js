@@ -1,4 +1,4 @@
-let idCounter = 0;
+import { generateNodeId, getUnionTypeInfo } from './common-utils';
 
 const parseType = (property) => {
     const isNullable = property.nullable === true || (Array.isArray(property.type) && property.type.includes('null'));
@@ -8,8 +8,9 @@ const parseType = (property) => {
     let formattedType;
 
     if (nonNullTypes.length > 1) {
-        rawType = 'union';
-        formattedType = nonNullTypes.join(' | ');
+        const unionInfo = getUnionTypeInfo(property.type, parseType);
+        rawType = unionInfo.rawType;
+        formattedType = unionInfo.formattedType;
     } else {
         rawType = nonNullTypes[0];
         formattedType = rawType;
@@ -55,7 +56,7 @@ const jsonSchemaToTree = (schema) => {
     const formattedType = uniqueDataTypeStrings.join(' | ');
 
     const baseNode = {
-      id: `node-${idCounter++}`,
+      id: generateNodeId(),
       name: name,
       properties: {
         rawType: 'union',
@@ -97,7 +98,7 @@ const jsonSchemaToTree = (schema) => {
       }
 
       const childNode = {
-        id: `node-${idCounter++}`,
+        id: generateNodeId(),
         name: `[${typeName}]`,
         properties: { rawType: childRawType, formattedType: childFormattedType, Nullable: 'No', Description: unionType.description || '' },
       };
@@ -126,7 +127,7 @@ const jsonSchemaToTree = (schema) => {
       const isArrayField = property.type === 'array';
 
       const baseNode = {
-        id: `node-${idCounter++}`,
+        id: generateNodeId(),
         name: name + (isArrayField ? '[]' : ''),
         properties: { rawType: parsedType.rawType, formattedType: parsedType.formattedType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
       };

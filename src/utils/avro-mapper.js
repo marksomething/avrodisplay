@@ -1,4 +1,4 @@
-let idCounter = 0;
+import { generateNodeId, getUnionTypeInfo } from './common-utils';
 
 const parseType = (type) => {
   let isNullable = false;
@@ -6,25 +6,10 @@ const parseType = (type) => {
   let formattedType;
 
   if (Array.isArray(type)) {
-    const nonNullTypes = type.filter(t => t !== 'null');
-    isNullable = type.includes('null');
-
-    if (nonNullTypes.length > 1) {
-        rawType = 'union';
-        formattedType = nonNullTypes.map(t => {
-            if (typeof t === 'object' && t !== null) {
-                return parseType(t).formattedType;
-            }
-            return t;
-        }).join(' | ');
-    } else if (nonNullTypes.length === 1) {
-        const singleTypeResult = parseType(nonNullTypes[0]);
-        rawType = singleTypeResult.rawType;
-        formattedType = singleTypeResult.formattedType;
-    } else { // empty array?
-        rawType = 'null';
-        formattedType = 'null';
-    }
+    const unionInfo = getUnionTypeInfo(type, parseType);
+    rawType = unionInfo.rawType;
+    formattedType = unionInfo.formattedType;
+    isNullable = unionInfo.isNullable;
   } else if (typeof type === 'object' && type !== null) {
     rawType = type.type;
     if (type.type === 'array') {
@@ -78,7 +63,7 @@ const avroToTree = (schema) => {
         }
 
         const unionNode = {
-          id: `node-${idCounter++}`,
+          id: generateNodeId(),
           name: `[${unionTypeName}]`,
           properties: { rawType: unionRawType, formattedType: unionFormattedType, Nullable: 'No', Description: '' },
           fqn: `${baseFqn}[${unionTypeName}]`
@@ -105,7 +90,7 @@ const avroToTree = (schema) => {
     const currentFqn = parentFqn ? `${parentFqn}.${currentFieldName}` : currentFieldName;
 
     const baseNode = {
-      id: `node-${idCounter++}`,
+      id: generateNodeId(),
       name: currentFieldName,
       properties: { rawType: parsedType.rawType, formattedType: formattedType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
       fqn: currentFqn,
