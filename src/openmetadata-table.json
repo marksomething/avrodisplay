@@ -137,16 +137,13 @@
       "description": "Current status of the record, can be a string or an integer code.",
       "children": [
         {
-          "name": "status_string",
           "dataType": "VARCHAR",
           "dataLength": 50
         },
         {
-          "name": "status_code",
           "dataType": "INT"
         },
         {
-          "name": "NULL",
           "dataType": "NULL"
         }
       ]
