@@ -32,6 +32,51 @@ const parseType = (property) => {
 const jsonSchemaToTree = (schema) => {
   if (!schema) return [];
 
+  const createOneOfNode = (unionType, processProperties) => {
+    let typeName;
+    let childFormattedType;
+    let childRawType;
+
+    if (unionType.type === 'object') {
+      typeName = unionType.title || 'object';
+      childFormattedType = typeName;
+      childRawType = 'object';
+    } else if (unionType.title) {
+      typeName = unionType.title;
+      childFormattedType = typeName;
+      childRawType = unionType.type;
+    } else if (unionType.type === 'array' && unionType.items) {
+      childRawType = 'array';
+      if (unionType.items.type) {
+        typeName = `array[${unionType.items.type}]`;
+        childFormattedType = typeName;
+      } else if (unionType.items.properties) {
+        typeName = 'array[object]';
+        childFormattedType = typeName;
+      } else {
+        typeName = 'array';
+        childFormattedType = 'array';
+      }
+    } else {
+      typeName = unionType.type;
+      childFormattedType = typeName;
+      childRawType = typeName;
+    }
+
+    const childNode = {
+      id: generateNodeId(),
+      name: `[${typeName}]`,
+      properties: { rawType: childRawType, formattedType: childFormattedType, Nullable: 'No', Description: unionType.description || '' },
+    };
+
+    if (unionType.type === 'object' && unionType.properties) {
+      childNode.children = processProperties(unionType.properties);
+    } else if (unionType.type === 'array' && unionType.items && unionType.items.properties) {
+      childNode.children = processProperties(unionType.items.properties);
+    }
+    return childNode;
+  };
+
   const processOneOf = (name, property, processProperties) => {
     const { oneOf, description } = property;
     const isNullable = oneOf.some(t => t.type === 'null');
@@ -66,50 +111,7 @@ const jsonSchemaToTree = (schema) => {
       },
     };
 
-    const children = nonNullTypes.map(unionType => {
-      let typeName;
-      let childFormattedType;
-      let childRawType;
-
-      if (unionType.type === 'object') {
-        typeName = unionType.title || 'object';
-        childFormattedType = typeName;
-        childRawType = 'object';
-      } else if (unionType.title) {
-        typeName = unionType.title;
-        childFormattedType = typeName;
-        childRawType = unionType.type;
-      } else if (unionType.type === 'array' && unionType.items) {
-        childRawType = 'array';
-        if (unionType.items.type) {
-          typeName = `array[${unionType.items.type}]`;
-          childFormattedType = typeName;
-        } else if (unionType.items.properties) {
-          typeName = 'array[object]';
-          childFormattedType = typeName;
-        } else {
-          typeName = 'array';
-          childFormattedType = 'array';
-        }
-      } else {
-        typeName = unionType.type;
-        childFormattedType = typeName;
-        childRawType = typeName;
-      }
-
-      const childNode = {
-        id: generateNodeId(),
-        name: `[${typeName}]`,
-        properties: { rawType: childRawType, formattedType: childFormattedType, Nullable: 'No', Description: unionType.description || '' },
-      };
-
-      if (unionType.type === 'object' && unionType.properties) {
-        childNode.children = processProperties(unionType.properties);
-      } else if (unionType.type === 'array' && unionType.items && unionType.items.properties) {
-        childNode.children = processProperties(unionType.items.properties);
-      }
-      return childNode;
-    });
+    const children = nonNullTypes.map(unionType => createOneOfNode(unionType, processProperties));
 
     baseNode.children = children;
 

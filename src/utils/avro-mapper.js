@@ -36,44 +36,46 @@ const parseType = (type) => {
 const avroToTree = (schema) => {
   if (!schema) return [];
 
+  const createUnionNode = (unionType, baseFqn) => {
+    let unionTypeName;
+    let unionFormattedType;
+    let unionRawType;
+    let unionChildren = [];
+
+    if (typeof unionType === 'object' && unionType !== null) {
+      const parsedUnionType = parseType(unionType);
+      unionTypeName = unionType.name || unionType.type;
+      unionFormattedType = parsedUnionType.formattedType;
+      unionRawType = parsedUnionType.rawType;
+      if (unionType.type === 'record') {
+        unionChildren = unionType.fields.map(f => processField(f, `${baseFqn}[${unionTypeName}]`));
+      } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null && unionType.items.type === 'record') {
+        unionChildren = unionType.items.fields.map(f => processField(f, `${baseFqn}[${unionTypeName}]`));
+      }
+    } else {
+      const parsedUnionType = parseType(unionType);
+      unionTypeName = unionType;
+      unionFormattedType = parsedUnionType.formattedType;
+      unionRawType = parsedUnionType.rawType;
+    }
+
+    const unionNode = {
+      id: generateNodeId(),
+      name: `[${unionTypeName}]`,
+      properties: { rawType: unionRawType, formattedType: unionFormattedType, Nullable: 'No', Description: '' },
+      fqn: `${baseFqn}[${unionTypeName}]`
+    };
+
+    if (unionChildren.length > 0) {
+      unionNode.children = unionChildren;
+    }
+    return unionNode;
+  };
+
   const processUnionTypes = (unionTypes, baseFqn) => {
     const nonNullTypes = unionTypes.filter(t => t !== 'null');
     if (nonNullTypes.length > 1) {
-      return nonNullTypes.map(unionType => {
-        let unionTypeName;
-        let unionFormattedType;
-        let unionRawType;
-        let unionChildren = [];
-
-        if (typeof unionType === 'object' && unionType !== null) {
-          const parsedUnionType = parseType(unionType);
-          unionTypeName = unionType.name || unionType.type;
-          unionFormattedType = parsedUnionType.formattedType;
-          unionRawType = parsedUnionType.rawType;
-          if (unionType.type === 'record') {
-            unionChildren = unionType.fields.map(f => processField(f, `${baseFqn}[${unionTypeName}]`));
-          } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null && unionType.items.type === 'record') {
-            unionChildren = unionType.items.fields.map(f => processField(f, `${baseFqn}[${unionTypeName}]`));
-          }
-        } else {
-          const parsedUnionType = parseType(unionType);
-          unionTypeName = unionType;
-          unionFormattedType = parsedUnionType.formattedType;
-          unionRawType = parsedUnionType.rawType;
-        }
-
-        const unionNode = {
-          id: generateNodeId(),
-          name: `[${unionTypeName}]`,
-          properties: { rawType: unionRawType, formattedType: unionFormattedType, Nullable: 'No', Description: '' },
-          fqn: `${baseFqn}[${unionTypeName}]`
-        };
-
-        if (unionChildren.length > 0) {
-          unionNode.children = unionChildren;
-        }
-        return unionNode;
-      });
+      return nonNullTypes.map(unionType => createUnionNode(unionType, baseFqn));
     }
     return [];
   };

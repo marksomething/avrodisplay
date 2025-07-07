@@ -1,10 +1,18 @@
-let idCounter = 0;
+import { generateNodeId } from './common-utils';
+
 let structCounter = 0;
 
 const openMetadataToTree = (schema) => {
   if (!schema) return [];
 
   structCounter = 0; // Reset for each new schema processing
+
+  const createUnionColumnNode = (unionType) => {
+    const unionNode = processColumn(unionType);
+    // For union children, always wrap the name in brackets
+    unionNode.name = `[${unionNode.name}]`;
+    return unionNode;
+  };
 
   const processUnionColumns = (unionColumns) => {
     const nonNullTypes = unionColumns.filter(c => c.dataType !== 'NULL');
@@ -20,12 +28,7 @@ const openMetadataToTree = (schema) => {
       });
       const formattedType = dataTypeStrings.join(' | ');
 
-      const children = nonNullTypes.map(unionType => {
-        const unionNode = processColumn(unionType);
-        // For union children, always wrap the name in brackets
-        unionNode.name = `[${unionNode.name}]`;
-        return unionNode;
-      });
+      const children = nonNullTypes.map(unionType => createUnionColumnNode(unionType));
       return { formattedType, children };
     }
     return { formattedType: '', children: [] };
@@ -74,7 +77,7 @@ const openMetadataToTree = (schema) => {
     }
 
     const baseNode = {
-      id: `node-${idCounter++}`,
+      id: generateNodeId(),
       name: name,
       properties: { rawType: rawType, formattedType: formattedType, Nullable: isNullable ? 'Yes' : 'No', Description: column.description || '' },
     };
