@@ -14,11 +14,11 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(2);
     expect(tree[0]).toMatchObject({
       name: 'id',
-      properties: { DataType: 'integer', Nullable: 'No', Description: 'User ID' }
+      properties: { rawType: 'integer', formattedType: 'integer', Nullable: 'No', Description: 'User ID' }
     });
     expect(tree[1]).toMatchObject({
       name: 'name',
-      properties: { DataType: 'string', Nullable: 'No', Description: '' }
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No', Description: '' }
     });
   });
 
@@ -33,7 +33,7 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'email',
-      properties: { DataType: 'string', Nullable: 'Yes' }
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'Yes' }
     });
   });
 
@@ -48,7 +48,7 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'phone',
-      properties: { DataType: 'string', Nullable: 'Yes' }
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'Yes' }
     });
   });
 
@@ -71,11 +71,11 @@ describe('jsonSchemaToTree', () => {
     expect(tree[0].children).toHaveLength(2);
     expect(tree[0].children[0]).toMatchObject({
       name: 'street',
-      properties: { DataType: 'string', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' },
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'city',
-      properties: { DataType: 'string', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' },
     });
   });
 
@@ -90,7 +90,7 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'tags[]',
-      properties: { DataType: 'array[string]', Nullable: 'No' },
+      properties: { rawType: 'array', formattedType: 'array[string]', Nullable: 'No' },
     });
   });
 
@@ -116,11 +116,11 @@ describe('jsonSchemaToTree', () => {
     expect(tree[0].children).toHaveLength(2);
     expect(tree[0].children[0]).toMatchObject({
       name: 'itemId',
-      properties: { DataType: 'integer', Nullable: 'No' }
+      properties: { rawType: 'integer', formattedType: 'integer', Nullable: 'No' }
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'quantity',
-      properties: { DataType: 'integer', Nullable: 'No' }
+      properties: { rawType: 'integer', formattedType: 'integer', Nullable: 'No' }
     });
   });
 
@@ -131,7 +131,7 @@ describe('jsonSchemaToTree', () => {
         contact: {
           oneOf: [
             { type: 'string', format: 'email', title: 'EmailContact' },
-            { type: 'string', pattern: '^\+[1-9]\d{1,14}'},
+            { type: 'string', pattern: '^\\+[1-9]\\d{1,14}'},
             { type: 'object', title: 'AddressContact', properties: { street: { type: 'string' } } },
             { type: 'null' },
           ],
@@ -142,21 +142,21 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('contact');
     expect(tree[0].properties.Nullable).toBe('Yes');
-    expect(tree[0].properties.DataType).toBe('EmailContact | string | AddressContact');
+    expect(tree[0].properties.formattedType).toBe('EmailContact | string | AddressContact');
     expect(tree[0].children).toHaveLength(3); // EmailContact, PhoneContact, AddressContact
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[EmailContact]',
-      properties: { DataType: 'EmailContact', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'EmailContact', Nullable: 'No' },
     });
     expect(tree[0].children[2]).toMatchObject({
       name: '[AddressContact]',
-      properties: { DataType: 'AddressContact', Nullable: 'No' }
+      properties: { rawType: 'object', formattedType: 'AddressContact', Nullable: 'No' }
     });
     expect(tree[0].children[2].children).toHaveLength(1);
     expect(tree[0].children[2].children[0]).toMatchObject({
       name: 'street',
-      properties: { DataType: 'string', Nullable: 'No' }
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' }
     });
   });
 
@@ -177,16 +177,16 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('value');
     expect(tree[0].properties.Nullable).toBe('Yes');
-    expect(tree[0].properties.DataType).toBe('string | integer');
+    expect(tree[0].properties.formattedType).toBe('string | integer');
     expect(tree[0].children).toHaveLength(2); // string, integer
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[string]',
-      properties: { DataType: 'string', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' },
     });
     expect(tree[0].children[1]).toMatchObject({
       name: '[integer]',
-      properties: { DataType: 'integer', Nullable: 'No' },
+      properties: { rawType: 'integer', formattedType: 'integer', Nullable: 'No' },
     });
   });
 
@@ -207,16 +207,16 @@ describe('jsonSchemaToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('value');
     expect(tree[0].properties.Nullable).toBe('Yes');
-    expect(tree[0].properties.DataType).toBe('string | integer');
+    expect(tree[0].properties.formattedType).toBe('string | integer');
     expect(tree[0].children).toHaveLength(2); // string, integer
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[string]',
-      properties: { DataType: 'string', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' },
     });
     expect(tree[0].children[1]).toMatchObject({
       name: '[integer]',
-      properties: { DataType: 'integer', Nullable: 'No' },
+      properties: { rawType: 'integer', formattedType: 'integer', Nullable: 'No' },
     });
   });
 });

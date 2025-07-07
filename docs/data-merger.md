@@ -29,7 +29,8 @@ Given `treeData`:
     "id": "node-0",
     "name": "user_id",
     "properties": {
-      "DataType": "long",
+      "rawType": "long",
+      "formattedType": "long",
       "Nullable": "No",
       "Description": "Unique user ID"
     },
@@ -39,7 +40,8 @@ Given `treeData`:
     "id": "node-1",
     "name": "address",
     "properties": {
-      "DataType": "record",
+      "rawType": "record",
+      "formattedType": "record",
       "Nullable": "No",
       "Description": "User address"
     },
@@ -49,7 +51,8 @@ Given `treeData`:
         "id": "node-2",
         "name": "street",
         "properties": {
-          "DataType": "string",
+          "rawType": "string",
+          "formattedType": "string",
           "Nullable": "No",
           "Description": "Street name"
         },
@@ -82,7 +85,8 @@ And `additionalData`:
     "id": "node-0",
     "name": "user_id",
     "properties": {
-      "DataType": "long",
+      "rawType": "long",
+      "formattedType": "long",
       "Nullable": "No",
       "Description": "Unique user ID",
       "Source": "DB",
@@ -94,7 +98,8 @@ And `additionalData`:
     "id": "node-1",
     "name": "address",
     "properties": {
-      "DataType": "record",
+      "rawType": "record",
+      "formattedType": "record",
       "Nullable": "No",
       "Description": "User address"
     },
@@ -104,7 +109,8 @@ And `additionalData`:
         "id": "node-2",
         "name": "street",
         "properties": {
-          "DataType": "string",
+          "rawType": "string",
+          "formattedType": "string",
           "Nullable": "No",
           "Description": "Street name",
           "Source": "API"

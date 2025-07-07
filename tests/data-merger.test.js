@@ -6,25 +6,25 @@ describe('mergeData', () => {
     {
       id: 'node-0',
       name: 'user_id',
-      properties: { DataType: 'long', Nullable: 'No', Description: 'Unique user ID' },
+      properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: 'Unique user ID' },
       fqn: 'user_id',
     },
     {
       id: 'node-1',
       name: 'address',
-      properties: { DataType: 'record', Nullable: 'No', Description: 'User address' },
+      properties: { rawType: 'record', formattedType: 'record', Nullable: 'No', Description: 'User address' },
       fqn: 'address',
       children: [
         {
           id: 'node-2',
           name: 'street',
-          properties: { DataType: 'string', Nullable: 'No', Description: 'Street name' },
+          properties: { rawType: 'string', formattedType: 'string', Nullable: 'No', Description: 'Street name' },
           fqn: 'address.street',
         },
         {
           id: 'node-3',
           name: 'city',
-          properties: { DataType: 'string', Nullable: 'No', Description: 'City name' },
+          properties: { rawType: 'string', formattedType: 'string', Nullable: 'No', Description: 'City name' },
           fqn: 'address.city',
         },
       ],
@@ -32,13 +32,13 @@ describe('mergeData', () => {
     {
       id: 'node-4',
       name: 'orders[]',
-      properties: { DataType: 'array[record]', Nullable: 'No', Description: 'User orders' },
+      properties: { rawType: 'array', formattedType: 'array[record]', Nullable: 'No', Description: 'User orders' },
       fqn: 'orders[]',
       children: [
         {
           id: 'node-5',
           name: 'order_id',
-          properties: { DataType: 'long', Nullable: 'No', Description: 'Order ID' },
+          properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: 'Order ID' },
           fqn: 'orders[].order_id',
         },
       ],
@@ -54,7 +54,8 @@ describe('mergeData', () => {
     const mergedTree = mergeData(initialTreeData, additionalData);
 
     expect(mergedTree[0].properties).toEqual({
-      DataType: 'long',
+      rawType: 'long',
+      formattedType: 'long',
       Nullable: 'No',
       Description: 'Unique user ID',
       Source: 'DB',
@@ -62,7 +63,8 @@ describe('mergeData', () => {
     });
 
     expect(mergedTree[1].children[0].properties).toEqual({
-      DataType: 'string',
+      rawType: 'string',
+      formattedType: 'string',
       Nullable: 'No',
       Description: 'Street name',
       Source: 'API',
@@ -70,7 +72,8 @@ describe('mergeData', () => {
 
     // Ensure other nodes are untouched
     expect(mergedTree[1].children[1].properties).toEqual({
-      DataType: 'string',
+      rawType: 'string',
+      formattedType: 'string',
       Nullable: 'No',
       Description: 'City name',
     });
@@ -84,7 +87,8 @@ describe('mergeData', () => {
     const mergedTree = mergeData(initialTreeData, additionalData);
 
     expect(mergedTree[2].children[0].properties).toEqual({
-      DataType: 'long',
+      rawType: 'long',
+      formattedType: 'long',
       Nullable: 'No',
       Description: 'Order ID',
       Source: 'Kafka',

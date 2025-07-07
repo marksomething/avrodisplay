@@ -1,28 +1,31 @@
 let idCounter = 0;
 
 const parseType = (property) => {
-  const isNullable = property.nullable === true || (Array.isArray(property.type) && property.type.includes('null'));
-  let typeString;
+    const isNullable = property.nullable === true || (Array.isArray(property.type) && property.type.includes('null'));
+    const nonNullTypes = Array.isArray(property.type) ? property.type.filter(t => t !== 'null') : [property.type];
 
-  const nonNullTypes = Array.isArray(property.type) ? property.type.filter(t => t !== 'null') : [property.type];
+    let rawType;
+    let formattedType;
 
-  if (nonNullTypes.length === 1) {
-    typeString = nonNullTypes[0];
-  } else {
-    typeString = nonNullTypes.join(' | ');
-  }
-
-  if (typeString === 'array') {
-    if (property.items) {
-      if (property.items.type) {
-        typeString = `array[${property.items.type}]`;
-      } else if (property.items.properties) {
-        typeString = 'array[object]';
-      }
+    if (nonNullTypes.length > 1) {
+        rawType = 'union';
+        formattedType = nonNullTypes.join(' | ');
+    } else {
+        rawType = nonNullTypes[0];
+        formattedType = rawType;
     }
-  }
 
-  return { type: typeString, isNullable };
+    if (rawType === 'array') {
+        if (property.items) {
+            if (property.items.type) {
+                formattedType = `array[${property.items.type}]`;
+            } else if (property.items.properties) {
+                formattedType = 'array[object]';
+            }
+        }
+    }
+
+    return { rawType, formattedType, isNullable };
 };
 
 const jsonSchemaToTree = (schema) => {
@@ -51,13 +54,14 @@ const jsonSchemaToTree = (schema) => {
           return t.type;
         });
         const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
-        const dataTypeString = uniqueDataTypeStrings.join(' | ');
+        const formattedType = uniqueDataTypeStrings.join(' | ');
 
         const baseNode = {
           id: `node-${idCounter++}`,
           name: name,
           properties: {
-            DataType: dataTypeString,
+            rawType: 'union',
+            formattedType: formattedType,
             Nullable: isNullable ? 'Yes' : 'No',
             Description: description || ''
           },
@@ -65,34 +69,39 @@ const jsonSchemaToTree = (schema) => {
 
         const children = nonNullTypes.map(unionType => {
           let typeName;
-          let childDataType;
+          let childFormattedType;
+          let childRawType;
 
           if (unionType.type === 'object') {
             typeName = unionType.title || 'object';
-            childDataType = typeName;
+            childFormattedType = typeName;
+            childRawType = 'object';
           } else if (unionType.title) {
             typeName = unionType.title;
-            childDataType = typeName;
+            childFormattedType = typeName;
+            childRawType = unionType.type;
           } else if (unionType.type === 'array' && unionType.items) {
+            childRawType = 'array';
             if (unionType.items.type) {
               typeName = `array[${unionType.items.type}]`;
-              childDataType = typeName;
+              childFormattedType = typeName;
             } else if (unionType.items.properties) {
               typeName = 'array[object]';
-              childDataType = typeName;
+              childFormattedType = typeName;
             } else {
               typeName = 'array';
-              childDataType = 'array';
+              childFormattedType = 'array';
             }
           } else {
             typeName = unionType.type;
-            childDataType = typeName;
+            childFormattedType = typeName;
+            childRawType = typeName;
           }
 
           const childNode = {
             id: `node-${idCounter++}`,
             name: `[${typeName}]`,
-            properties: { DataType: childDataType, Nullable: 'No', Description: unionType.description || '' },
+            properties: { rawType: childRawType, formattedType: childFormattedType, Nullable: 'No', Description: unionType.description || '' },
           };
 
           if (unionType.type === 'object' && unionType.properties) {
@@ -115,7 +124,7 @@ const jsonSchemaToTree = (schema) => {
       const baseNode = {
         id: `node-${idCounter++}`,
         name: name + (isArrayField ? '[]' : ''),
-        properties: { DataType: parsedType.type, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
+        properties: { rawType: parsedType.rawType, formattedType: parsedType.formattedType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: property.description || '' },
       };
 
       if (property.type === 'object' && property.properties) {

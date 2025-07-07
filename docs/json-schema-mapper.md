@@ -16,7 +16,8 @@ Transforms a given JSON Schema object into a standardized tree data format.
     -   `id` (string): A unique identifier for the node.
     -   `name` (string): The display name of the field. For array types, `[]` is appended (e.g., `items[]`). For `oneOf` types, the specific type is enclosed in brackets (e.g., `[string]`, `[EmailContact]`).
     -   `properties` (Object): An object containing key-value pairs describing the field:
-        -   `DataType` (string): The JSON Schema data type of the field (e.g., `string`, `integer`, `array[string]`, `object`). For `oneOf` types, it lists all non-null types (using their `title` if available, otherwise their `type`) separated by ` | `.
+        -   `rawType` (string): The base JSON Schema data type of the field (e.g., `string`, `integer`, `array`, `object`, `union`).
+        -   `formattedType` (string): The formatted JSON Schema data type of the field (e.g., `string`, `integer`, `array[string]`, `object`). For `oneOf` types, it lists all non-null types (using their `title` if available, otherwise their `type`) separated by ` | `.
         -   `Nullable` (string): Indicates if the field is nullable (`Yes` or `No`).
         -   `Description` (string): The `description` from the JSON Schema, if available.
     -   `children` (Array<Object>, optional): An array of child nodes, recursively following the same structure, for complex types like objects or `oneOf` unions with multiple non-null options.
@@ -28,7 +29,7 @@ When a JSON Schema property uses `oneOf` to define a union of types, the `jsonSc
 -   If `null` is part of the `oneOf` array, the `Nullable` property of the parent node is set to `Yes`.
 -   If there are multiple non-null options in the `oneOf` array, each non-null option (whether primitive or complex) is represented as a child node under the parent field.
 -   The `name` of these child nodes is formatted as `[TypeName]` (e.g., `[string]`, `[EmailContact]`).
--   The `DataType` for these child nodes reflects their specific type (using `title` for objects if available, otherwise `object`).
+-   The `rawType` and `formattedType` for these child nodes reflect their specific type (using `title` for objects if available, otherwise `object`).
 
 ## Example
 
@@ -59,7 +60,8 @@ Given a JSON Schema snippet:
     "id": "node-0",
     "name": "contact_info",
     "properties": {
-      "DataType": "EmailContact | PhoneContact | AddressContact",
+      "rawType": "union",
+      "formattedType": "EmailContact | PhoneContact | AddressContact",
       "Nullable": "Yes",
       "Description": "Contact information, can be a phone number or an email."
     },
@@ -68,7 +70,8 @@ Given a JSON Schema snippet:
         "id": "node-1",
         "name": "[EmailContact]",
         "properties": {
-          "DataType": "EmailContact",
+          "rawType": "string",
+          "formattedType": "EmailContact",
           "Nullable": "No",
           "Description": ""
         }
@@ -77,7 +80,8 @@ Given a JSON Schema snippet:
         "id": "node-2",
         "name": "[PhoneContact]",
         "properties": {
-          "DataType": "PhoneContact",
+          "rawType": "string",
+          "formattedType": "PhoneContact",
           "Nullable": "No",
           "Description": ""
         }
@@ -86,7 +90,8 @@ Given a JSON Schema snippet:
         "id": "node-3",
         "name": "[AddressContact]",
         "properties": {
-          "DataType": "AddressContact",
+          "rawType": "object",
+          "formattedType": "AddressContact",
           "Nullable": "No",
           "Description": ""
         },
@@ -95,7 +100,8 @@ Given a JSON Schema snippet:
             "id": "node-4",
             "name": "street",
             "properties": {
-              "DataType": "string",
+              "rawType": "string",
+              "formattedType": "string",
               "Nullable": "No",
               "Description": ""
             }

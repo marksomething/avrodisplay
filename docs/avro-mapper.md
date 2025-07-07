@@ -16,7 +16,8 @@ Transforms a given Avro schema object into a standardized tree data format.
     -   `id` (string): A unique identifier for the node.
     -   `name` (string): The display name of the field. For array types, `[]` is appended (e.g., `items[]`). For union types, the specific type is enclosed in brackets (e.g., `[string]`, `[LoginEvent]`).
     -   `properties` (Object): An object containing key-value pairs describing the field:
-        -   `DataType` (string): The Avro data type of the field (e.g., `string`, `long`, `array[string]`, `record:LoginEvent`). For union types, it lists all non-null types separated by ` | `.
+        -   `rawType` (string): The base Avro data type of the field (e.g., `string`, `long`, `array`, `record`, `union`).
+        -   `formattedType` (string): The formatted Avro data type of the field (e.g., `string`, `long`, `array[string]`, `LoginEvent`). For union types, it lists all non-null types separated by ` | `.
         -   `Nullable` (string): Indicates if the field is nullable (`Yes` or `No`).
         -   `Description` (string): The documentation string (`doc`) from the Avro schema, if available.
     -   `fqn` (string): The Fully Qualified Name of the field, representing its path within the schema (e.g., `address.street`, `orders[].order_id`).
@@ -29,7 +30,7 @@ When an Avro field is defined as a union (e.g., `["null", "string", {"type": "re
 -   If `null` is part of the union, the `Nullable` property of the parent node is set to `Yes`.
 -   If there are multiple non-null options in the union, each non-null option (whether primitive or complex) is represented as a child node under the parent field.
 -   The `name` of these child nodes is formatted as `[TypeName]` (e.g., `[string]`, `[LoginEvent]`).
--   The `DataType` for these child nodes reflects their specific type.
+-   The `rawType` and `formattedType` for these child nodes reflect their specific type.
 
 ## Example
 
@@ -62,7 +63,8 @@ Given an Avro schema:
     "id": "node-0",
     "name": "id",
     "properties": {
-      "DataType": "long",
+      "rawType": "long",
+      "formattedType": "long",
       "Nullable": "No",
       "Description": "Unique user ID"
     },
@@ -72,7 +74,8 @@ Given an Avro schema:
     "id": "node-1",
     "name": "contact",
     "properties": {
-      "DataType": "string | Email",
+      "rawType": "union",
+      "formattedType": "string | Email",
       "Nullable": "Yes",
       "Description": "User contact information"
     },
@@ -82,7 +85,8 @@ Given an Avro schema:
         "id": "node-2",
         "name": "[string]",
         "properties": {
-          "DataType": "string",
+          "rawType": "string",
+          "formattedType": "string",
           "Nullable": "No",
           "Description": ""
         },
@@ -92,7 +96,8 @@ Given an Avro schema:
         "id": "node-3",
         "name": "[Email]",
         "properties": {
-          "DataType": "Email",
+          "rawType": "record",
+          "formattedType": "Email",
           "Nullable": "No",
           "Description": ""
         },
@@ -102,7 +107,8 @@ Given an Avro schema:
             "id": "node-4",
             "name": "address",
             "properties": {
-              "DataType": "string",
+              "rawType": "string",
+              "formattedType": "string",
               "Nullable": "No",
               "Description": ""
             },

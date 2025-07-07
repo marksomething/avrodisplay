@@ -16,7 +16,8 @@ Transforms a given OpenMetadata table schema object into a standardized tree dat
     -   `id` (string): A unique identifier for the node.
     -   `name` (string): The display name of the column. For array types, `[]` is appended (e.g., `line_items[]`). For union types, the specific type is enclosed in brackets (e.g., `[VARCHAR]`, `[email_contact]`).
     -   `properties` (Object): An object containing key-value pairs describing the column:
-        -   `DataType` (string): The OpenMetadata data type of the column (e.g., `BIGINT`, `VARCHAR`, `ARRAY[VARCHAR]`, `STRUCT`). For union types, it lists all non-null types (using their `name` if available, otherwise their `dataType`) separated by ` | `.
+        -   `rawType` (string): The base OpenMetadata data type of the column (e.g., `BIGINT`, `VARCHAR`, `ARRAY`, `STRUCT`, `UNION`).
+        -   `formattedType` (string): The formatted OpenMetadata data type of the column (e.g., `BIGINT`, `VARCHAR`, `ARRAY[VARCHAR]`, `STRUCT`). For union types, it lists all non-null types (using their `name` if available, otherwise their `dataType`) separated by ` | `.
         -   `Nullable` (string): Indicates if the column is nullable (`Yes` or `No`). This is determined by the `nullable` property or the presence of a `NULL` type in a `UNION`.
         -   `Description` (string): The `description` from the OpenMetadata schema, if available.
     -   `children` (Array<Object>, optional): An array of child nodes, recursively following the same structure, for complex types like `STRUCT` or `UNION` with multiple non-null options.
@@ -28,7 +29,7 @@ When an OpenMetadata column is defined as a `UNION` type, the `openMetadataToTre
 -   If a `NULL` type is part of the `children` array of the `UNION`, the `Nullable` property of the parent node is set to `Yes`.
 -   If there are multiple non-null options in the `UNION`'s `children` array, each non-null option (whether primitive or complex) is represented as a child node under the parent column.
 -   The `name` of these child nodes is formatted as `[TypeName]` (e.g., `[VARCHAR]`, `[email_contact]`). For primitive types without a `name`, their `dataType` is used as the `TypeName`.
--   The `DataType` for these child nodes reflects their specific type.
+-   The `rawType` and `formattedType` for these child nodes reflect their specific type.
 
 ## Example
 
@@ -85,7 +86,8 @@ Given an OpenMetadata schema snippet:
     "id": "node-0",
     "name": "contact_preference",
     "properties": {
-      "DataType": "email_contact | phone_contact | VARCHAR | INT",
+      "rawType": "UNION",
+      "formattedType": "email_contact | phone_contact | VARCHAR | INT",
       "Nullable": "Yes",
       "Description": "User's preferred contact method, can be email or phone."
     },
@@ -94,7 +96,8 @@ Given an OpenMetadata schema snippet:
         "id": "node-1",
         "name": "[email_contact]",
         "properties": {
-          "DataType": "STRUCT",
+          "rawType": "STRUCT",
+          "formattedType": "STRUCT",
           "Nullable": "No",
           "Description": "Email contact details."
         },
@@ -103,7 +106,8 @@ Given an OpenMetadata schema snippet:
             "id": "node-2",
             "name": "email_address",
             "properties": {
-              "DataType": "VARCHAR",
+              "rawType": "VARCHAR",
+              "formattedType": "VARCHAR",
               "Nullable": "No",
               "Description": ""
             }
@@ -114,7 +118,8 @@ Given an OpenMetadata schema snippet:
         "id": "node-3",
         "name": "[phone_contact]",
         "properties": {
-          "DataType": "STRUCT",
+          "rawType": "STRUCT",
+          "formattedType": "STRUCT",
           "Nullable": "No",
           "Description": "Phone contact details."
         },
@@ -123,7 +128,8 @@ Given an OpenMetadata schema snippet:
             "id": "node-4",
             "name": "phone_number",
             "properties": {
-              "DataType": "VARCHAR",
+              "rawType": "VARCHAR",
+              "formattedType": "VARCHAR",
               "Nullable": "No",
               "Description": ""
             }
@@ -134,7 +140,8 @@ Given an OpenMetadata schema snippet:
         "id": "node-5",
         "name": "[VARCHAR]",
         "properties": {
-          "DataType": "VARCHAR",
+          "rawType": "VARCHAR",
+          "formattedType": "VARCHAR",
           "Nullable": "No",
           "Description": ""
         }
@@ -143,7 +150,8 @@ Given an OpenMetadata schema snippet:
         "id": "node-6",
         "name": "[INT]",
         "properties": {
-          "DataType": "INT",
+          "rawType": "INT",
+          "formattedType": "INT",
           "Nullable": "No",
           "Description": ""
         }

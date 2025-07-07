@@ -7,7 +7,8 @@ const openMetadataToTree = (schema) => {
   structCounter = 0; // Reset for each new schema processing
 
   const processColumn = (column) => {
-    let dataType = column.dataType;
+    let rawType = column.dataType;
+    let formattedType = column.dataType;
     let name;
     let children = [];
 
@@ -28,20 +29,20 @@ const openMetadataToTree = (schema) => {
     }
 
     let isNullable = column.nullable || false;
-    if (dataType === 'UNION' && column.children) {
+    if (rawType === 'UNION' && column.children) {
       const hasNullChild = column.children.some(c => c.dataType === 'NULL');
       isNullable = isNullable || hasNullChild;
     }
 
-    if (dataType === 'ARRAY') {
-      dataType = `ARRAY[${column.arrayDataType}]`;
+    if (rawType === 'ARRAY') {
+      formattedType = `ARRAY[${column.arrayDataType}]`;
       name = `${column.name}[]`;
       if (column.arrayDataType === 'STRUCT' && column.children) {
         children = column.children.map(processColumn);
       }
-    } else if (dataType === 'STRUCT' && column.children) {
+    } else if (rawType === 'STRUCT' && column.children) {
       children = column.children.map(processColumn);
-    } else if (dataType === 'UNION' && column.children) {
+    } else if (rawType === 'UNION' && column.children) {
       const nonNullTypes = column.children.filter(c => c.dataType !== 'NULL');
       if (nonNullTypes.length > 1) {
         const dataTypeStrings = nonNullTypes.map(t => {
@@ -53,7 +54,7 @@ const openMetadataToTree = (schema) => {
           }
           return t.dataType;
         });
-        dataType = dataTypeStrings.join(' | ');
+        formattedType = dataTypeStrings.join(' | ');
 
         children = nonNullTypes.map(unionType => {
           const unionNode = processColumn(unionType);
@@ -67,7 +68,7 @@ const openMetadataToTree = (schema) => {
     const baseNode = {
       id: `node-${idCounter++}`,
       name: name,
-      properties: { DataType: dataType, Nullable: isNullable ? 'Yes' : 'No', Description: column.description || '' },
+      properties: { rawType: rawType, formattedType: formattedType, Nullable: isNullable ? 'Yes' : 'No', Description: column.description || '' },
     };
 
     if (children.length > 0) {

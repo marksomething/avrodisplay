@@ -76,7 +76,7 @@ function App() {
 
   const fieldConfiguration = {
     Name: { title: 'Field Name' },
-    DataType: { title: 'Data Type' },
+    formattedType: { title: 'Data Type' },
     Nullable: { formatter: NullableStatusDotFormatter, title: 'Is Nullable?' },
     Description: { formatter: ItalicFormatter, title: 'Description', renderAsSecondLine: true },
     Source: { formatter: RainbowFormatter, title: 'Data Source' },

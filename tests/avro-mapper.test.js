@@ -15,12 +15,12 @@ describe('avroToTree', () => {
     expect(tree).toHaveLength(2);
     expect(tree[0]).toMatchObject({
       name: 'id',
-      properties: { DataType: 'long', Nullable: 'No', Description: 'User ID' },
+      properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: 'User ID' },
       fqn: 'id',
     });
     expect(tree[1]).toMatchObject({
       name: 'name',
-      properties: { DataType: 'string', Nullable: 'No', Description: '' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No', Description: '' },
       fqn: 'name',
     });
   });
@@ -37,7 +37,7 @@ describe('avroToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'price',
-      properties: { DataType: 'double', Nullable: 'Yes', Description: '' },
+      properties: { rawType: 'double', formattedType: 'double', Nullable: 'Yes', Description: '' },
     });
   });
 
@@ -66,7 +66,7 @@ describe('avroToTree', () => {
     expect(tree[1].children).toHaveLength(2);
     expect(tree[1].children[0]).toMatchObject({
       name: 'customerId',
-      properties: { DataType: 'long', Nullable: 'No', Description: '' },
+      properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: '' },
       fqn: 'customer.customerId',
     });
   });
@@ -83,7 +83,7 @@ describe('avroToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'tags[]',
-      properties: { DataType: 'array[string]', Nullable: 'No', Description: '' },
+      properties: { rawType: 'array', formattedType: 'array[string]', Nullable: 'No', Description: '' },
     });
   });
 
@@ -114,7 +114,7 @@ describe('avroToTree', () => {
     expect(tree[0].children).toHaveLength(2);
     expect(tree[0].children[0]).toMatchObject({
       name: 'itemId',
-      properties: { DataType: 'long', Nullable: 'No', Description: '' },
+      properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: '' },
       fqn: 'items[].itemId',
     });
   });
@@ -144,7 +144,7 @@ describe('avroToTree', () => {
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[LoginEvent]',
-      properties: { DataType: 'LoginEvent', Nullable: 'No' },
+      properties: { rawType: 'record', formattedType: 'LoginEvent', Nullable: 'No' },
       fqn: 'payload[LoginEvent]',
     });
     expect(tree[0].children[0].children).toHaveLength(1);
@@ -152,7 +152,7 @@ describe('avroToTree', () => {
 
     expect(tree[0].children[1]).toMatchObject({
       name: '[LogoutEvent]',
-      properties: { DataType: 'LogoutEvent', Nullable: 'No' },
+      properties: { rawType: 'record', formattedType: 'LogoutEvent', Nullable: 'No' },
       fqn: 'payload[LogoutEvent]',
     });
     expect(tree[0].children[1].children).toHaveLength(1);
@@ -160,13 +160,13 @@ describe('avroToTree', () => {
 
     expect(tree[0].children[2]).toMatchObject({
       name: '[string]',
-      properties: { DataType: 'string', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' },
       fqn: 'payload[string]',
     });
 
     expect(tree[0].children[3]).toMatchObject({
       name: '[int]',
-      properties: { DataType: 'int', Nullable: 'No' },
+      properties: { rawType: 'int', formattedType: 'int', Nullable: 'No' },
       fqn: 'payload[int]',
     });
   });
@@ -197,13 +197,13 @@ describe('avroToTree', () => {
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[string]',
-      properties: { DataType: 'string', Nullable: 'No' },
+      properties: { rawType: 'string', formattedType: 'string', Nullable: 'No' },
       fqn: 'items[][string]',
     });
 
     expect(tree[0].children[1]).toMatchObject({
       name: '[ComplexItem]',
-      properties: { DataType: 'ComplexItem', Nullable: 'No' },
+      properties: { rawType: 'record', formattedType: 'ComplexItem', Nullable: 'No' },
       fqn: 'items[][ComplexItem]',
     });
     expect(tree[0].children[1].children).toHaveLength(1);

@@ -2,37 +2,50 @@ let idCounter = 0;
 
 const parseType = (type) => {
   let isNullable = false;
-  let typeString;
+  let rawType;
+  let formattedType;
 
   if (Array.isArray(type)) {
     const nonNullTypes = type.filter(t => t !== 'null');
     isNullable = type.includes('null');
-    typeString = nonNullTypes.map(t => {
-      if (typeof t === 'object' && t !== null) {
-        const innerTypeResult = parseType(t);
-        return innerTypeResult.type;
-      }
-      return t;
-    }).join(' | ');
+
+    if (nonNullTypes.length > 1) {
+        rawType = 'union';
+        formattedType = nonNullTypes.map(t => {
+            if (typeof t === 'object' && t !== null) {
+                return parseType(t).formattedType;
+            }
+            return t;
+        }).join(' | ');
+    } else if (nonNullTypes.length === 1) {
+        const singleTypeResult = parseType(nonNullTypes[0]);
+        rawType = singleTypeResult.rawType;
+        formattedType = singleTypeResult.formattedType;
+    } else { // empty array?
+        rawType = 'null';
+        formattedType = 'null';
+    }
   } else if (typeof type === 'object' && type !== null) {
+    rawType = type.type;
     if (type.type === 'array') {
         const itemTypeResult = parseType(type.items);
-        typeString = `array[${itemTypeResult.type}]`;
-    } else {
+        formattedType = `array[${itemTypeResult.formattedType}]`;
+    } else { // record, enum, fixed
       if (type.type === 'record' && type.name) {
-        typeString = type.name;
+        formattedType = type.name;
       } else {
-        typeString = type.type;
+        formattedType = type.type;
       }
       if (type.logicalType) {
-        typeString = `${typeString}:${type.logicalType}`;
+        formattedType = `${formattedType}:${type.logicalType}`;
       }
     }
-  } else {
-    typeString = type;
+  } else { // primitive type
+    rawType = type;
+    formattedType = type;
   }
 
-  return { type: typeString, isNullable };
+  return { rawType, formattedType, isNullable };
 };
 
 const avroToTree = (schema) => {
@@ -40,9 +53,9 @@ const avroToTree = (schema) => {
 
   const processField = (field, parentFqn = '') => {
     const parsedType = parseType(field.type);
-    let dataType = parsedType.type;
+    let formattedType = parsedType.formattedType;
     if (field.logicalType && typeof field.type !== 'object') { // Apply logicalType only for primitive types directly on the field
-      dataType = `${dataType}:${field.logicalType}`;
+      formattedType = `${formattedType}:${field.logicalType}`;
     }
     const isArrayField = typeof field.type === 'object' && field.type !== null && field.type.type === 'array';
 
@@ -52,7 +65,7 @@ const avroToTree = (schema) => {
     const baseNode = {
       id: `node-${idCounter++}`,
       name: currentFieldName,
-      properties: { DataType: dataType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
+      properties: { rawType: parsedType.rawType, formattedType: formattedType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
       fqn: currentFqn,
     };
 
@@ -67,24 +80,29 @@ const avroToTree = (schema) => {
             if (nonNullItemTypes.length > 1) {
                 children = nonNullItemTypes.map(unionItemType => {
                     let unionItemTypeName;
-                    let unionItemDataType;
+                    let unionItemFormattedType;
+                    let unionItemRawType;
                     let unionItemChildren = [];
 
                     if (typeof unionItemType === 'object' && unionItemType !== null) {
+                        const parsedUnionItemType = parseType(unionItemType);
                         unionItemTypeName = unionItemType.name || unionItemType.type;
-                        unionItemDataType = unionItemTypeName;
+                        unionItemFormattedType = parsedUnionItemType.formattedType;
+                        unionItemRawType = parsedUnionItemType.rawType;
                         if (unionItemType.type === 'record') {
                             unionItemChildren = unionItemType.fields.map(f => processField(f, `${baseNode.fqn}[${unionItemTypeName}]`));
                         }
                     } else {
+                        const parsedUnionItemType = parseType(unionItemType);
                         unionItemTypeName = unionItemType;
-                        unionItemDataType = unionItemType;
+                        unionItemFormattedType = parsedUnionItemType.formattedType;
+                        unionItemRawType = parsedUnionItemType.rawType;
                     }
 
                     const unionItemNode = {
                         id: `node-${idCounter++}`,
                         name: `[${unionItemTypeName}]`,
-                        properties: { DataType: unionItemDataType, Nullable: 'No', Description: '' },
+                        properties: { rawType: unionItemRawType, formattedType: unionItemFormattedType, Nullable: 'No', Description: '' },
                         fqn: `${baseNode.fqn}[${unionItemTypeName}]`
                     };
 
@@ -105,28 +123,31 @@ const avroToTree = (schema) => {
         if (nonNullTypes.length > 1) { // If there's more than one non-null type in the union
             children = nonNullTypes.map(unionType => {
                 let unionTypeName;
-                let unionDataType;
+                let unionFormattedType;
+                let unionRawType;
                 let unionChildren = [];
 
                 if (typeof unionType === 'object' && unionType !== null) {
-                    // Handle complex types (records, arrays of records)
+                    const parsedUnionType = parseType(unionType);
                     unionTypeName = unionType.name || unionType.type;
-                    unionDataType = unionTypeName;
+                    unionFormattedType = parsedUnionType.formattedType;
+                    unionRawType = parsedUnionType.rawType;
                     if (unionType.type === 'record') {
                         unionChildren = unionType.fields.map(f => processField(f, `${baseNode.fqn}[${unionTypeName}]`));
                     } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null && unionType.items.type === 'record') {
                         unionChildren = unionType.items.fields.map(f => processField(f, `${baseNode.fqn}[${unionTypeName}]`));
                     }
                 } else {
-                    // Handle primitive types
+                    const parsedUnionType = parseType(unionType);
                     unionTypeName = unionType; // e.g., "string", "int"
-                    unionDataType = unionType;
+                    unionFormattedType = parsedUnionType.formattedType;
+                    unionRawType = parsedUnionType.rawType;
                 }
 
                 const unionNode = {
                     id: `node-${idCounter++}`,
                     name: `[${unionTypeName}]`, // Display name for the child node
-                    properties: { DataType: unionDataType, Nullable: 'No', Description: '' }, // Nullable is 'No' for the specific union branch
+                    properties: { rawType: unionRawType, formattedType: unionFormattedType, Nullable: 'No', Description: '' }, // Nullable is 'No' for the specific union branch
                     fqn: `${baseNode.fqn}[${unionTypeName}]` // FQN for the union branch
                 };
 
