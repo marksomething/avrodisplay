@@ -13,11 +13,17 @@ describe('openMetadataToTree', () => {
     expect(tree).toHaveLength(2);
     expect(tree[0]).toMatchObject({
       name: 'id',
-      properties: { rawType: 'BIGINT', formattedType: 'BIGINT', Nullable: 'No', Description: 'User ID' },
+      dataType: 'BIGINT',
+      dataTypeDisplay: 'BIGINT',
+      Nullable: 'No',
+      Description: 'User ID',
     });
     expect(tree[1]).toMatchObject({
       name: 'name',
-      properties: { rawType: 'VARCHAR', formattedType: 'VARCHAR', Nullable: 'No', Description: '' },
+      dataType: 'VARCHAR',
+      dataTypeDisplay: 'VARCHAR',
+      Nullable: 'No',
+      Description: '',
     });
   });
 
@@ -31,7 +37,9 @@ describe('openMetadataToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'delivery_date',
-      properties: { rawType: 'TIMESTAMP', formattedType: 'TIMESTAMP', Nullable: 'Yes' },
+      dataType: 'TIMESTAMP',
+      dataTypeDisplay: 'TIMESTAMP',
+      Nullable: 'Yes',
     });
   });
 
@@ -54,11 +62,15 @@ describe('openMetadataToTree', () => {
     expect(tree[0].children).toHaveLength(2);
     expect(tree[0].children[0]).toMatchObject({
       name: 'customer_id',
-      properties: { rawType: 'BIGINT', formattedType: 'BIGINT', Nullable: 'No' },
+      dataType: 'BIGINT',
+      dataTypeDisplay: 'BIGINT',
+      Nullable: 'No',
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'email',
-      properties: { rawType: 'VARCHAR', formattedType: 'VARCHAR', Nullable: 'No' },
+      dataType: 'VARCHAR',
+      dataTypeDisplay: 'VARCHAR',
+      Nullable: 'No',
     });
   });
 
@@ -72,7 +84,9 @@ describe('openMetadataToTree', () => {
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
       name: 'tags[]',
-      properties: { rawType: 'ARRAY', formattedType: 'ARRAY[VARCHAR]', Nullable: 'No' },
+      dataType: 'ARRAY',
+      dataTypeDisplay: 'ARRAY[VARCHAR]',
+      Nullable: 'No',
     });
   });
 
@@ -96,11 +110,15 @@ describe('openMetadataToTree', () => {
     expect(tree[0].children).toHaveLength(2);
     expect(tree[0].children[0]).toMatchObject({
       name: 'item_id',
-      properties: { rawType: 'BIGINT', formattedType: 'BIGINT', Nullable: 'No' },
+      dataType: 'BIGINT',
+      dataTypeDisplay: 'BIGINT',
+      Nullable: 'No',
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'quantity',
-      properties: { rawType: 'INT', formattedType: 'INT', Nullable: 'No' },
+      dataType: 'INT',
+      dataTypeDisplay: 'INT',
+      Nullable: 'No',
     });
   });
 
@@ -123,38 +141,54 @@ describe('openMetadataToTree', () => {
     const tree = openMetadataToTree(omSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('contact_preference');
-    expect(tree[0].properties.Nullable).toBe('Yes');
-    expect(tree[0].properties.formattedType).toBe('email_contact | phone_contact | VARCHAR | INT');
+    expect(tree[0].Nullable).toBe('Yes');
+    expect(tree[0].dataTypeDisplay).toBe('email_contact | phone_contact | VARCHAR | INT');
     expect(tree[0].children).toHaveLength(4); // email_contact, phone_contact, string_option, int_option
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[email_contact]',
-      properties: { rawType: 'STRUCT', formattedType: 'STRUCT', Nullable: 'No' },
+      dataType: 'STRUCT',
+      dataTypeDisplay: 'STRUCT',
+      Nullable: 'No',
+      Description: '',
     });
     expect(tree[0].children[0].children).toHaveLength(1);
     expect(tree[0].children[0].children[0]).toMatchObject({
       name: 'email_address',
-      properties: { rawType: 'VARCHAR', formattedType: 'VARCHAR', Nullable: 'No' },
+      dataType: 'VARCHAR',
+      dataTypeDisplay: 'VARCHAR',
+      Nullable: 'No',
     });
 
     expect(tree[0].children[1]).toMatchObject({
       name: '[phone_contact]',
-      properties: { rawType: 'STRUCT', formattedType: 'STRUCT', Nullable: 'No' },
+      dataType: 'STRUCT',
+      dataTypeDisplay: 'STRUCT',
+      Nullable: 'No',
+      Description: '',
     });
     expect(tree[0].children[1].children).toHaveLength(1);
     expect(tree[0].children[1].children[0]).toMatchObject({
       name: 'phone_number',
-      properties: { rawType: 'VARCHAR', formattedType: 'VARCHAR', Nullable: 'No' },
+      dataType: 'VARCHAR',
+      dataTypeDisplay: 'VARCHAR',
+      Nullable: 'No',
     });
 
     expect(tree[0].children[2]).toMatchObject({
       name: '[VARCHAR]',
-      properties: { rawType: 'VARCHAR', formattedType: 'VARCHAR', Nullable: 'No' },
+      dataType: 'VARCHAR',
+      dataTypeDisplay: 'VARCHAR',
+      Nullable: 'No',
+      Description: '',
     });
 
     expect(tree[0].children[3]).toMatchObject({
       name: '[INT]',
-      properties: { rawType: 'INT', formattedType: 'INT', Nullable: 'No' },
+      dataType: 'INT',
+      dataTypeDisplay: 'INT',
+      Nullable: 'No',
+      Description: '',
     });
   });
 });

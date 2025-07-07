@@ -7,10 +7,18 @@ const mergeData = (treeData, additionalData) => {
       const currentFieldName = node.name.endsWith('[]') ? node.name : node.name;
       const currentFqn = parentFqn ? isUnion ? `${parentFqn}${currentFieldName}` : `${parentFqn}.${currentFieldName}` : currentFieldName;
 
-      const newNode = { ...node, fqn: currentFqn };
+      // Create a new node by spreading the existing node, its properties, and the fqn
+      const newNode = {
+        ...node,
+        ...node.properties,
+        fqn: currentFqn
+      };
+
+      // Delete the old properties object
+      delete newNode.properties;
 
       if (additionalData[currentFqn]) {
-        newNode.properties = { ...newNode.properties, ...additionalData[currentFqn] };
+        Object.assign(newNode, additionalData[currentFqn]);
       }
 
       if (newNode.children && newNode.children.length > 0) {

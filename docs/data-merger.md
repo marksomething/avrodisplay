@@ -13,11 +13,11 @@ Merges `additionalData` into `treeData` by matching `fqn` properties of the tree
 
 ### Returns
 
--   `Array<Object>`: A new tree data structure with the `additionalData` merged into the `properties` of the matching nodes. The original `treeData` is not modified.
+-   `Array<Object>`: A new tree data structure with the `additionalData` merged into the matching nodes. The original `treeData` is not modified.
 
 ## How it Works
 
-The `mergeData` function recursively traverses the `treeData`. For each node, it checks if its `fqn` matches any key in the `additionalData` object. If a match is found, the properties from `additionalData[fqn]` are shallow-merged into the `properties` object of the tree node. This allows for flexible extension of the tree nodes with external metadata.
+The `mergeData` function recursively traverses the `treeData`. For each node, it checks if its `fqn` matches any key in the `additionalData` object. If a match is found, the properties from `additionalData[fqn]` are shallow-merged into the corresponding tree node. This allows for flexible extension of the tree nodes with external metadata.
 
 ## Example
 
@@ -28,34 +28,28 @@ Given `treeData`:
   {
     "id": "node-0",
     "name": "user_id",
-    "properties": {
-      "rawType": "long",
-      "formattedType": "long",
-      "Nullable": "No",
-      "Description": "Unique user ID"
-    },
+    "dataType": "long",
+    "dataTypeDisplay": "long",
+    "Nullable": "No",
+    "Description": "Unique user ID",
     "fqn": "user_id"
   },
   {
     "id": "node-1",
     "name": "address",
-    "properties": {
-      "rawType": "record",
-      "formattedType": "record",
-      "Nullable": "No",
-      "Description": "User address"
-    },
+    "dataType": "record",
+    "dataTypeDisplay": "record",
+    "Nullable": "No",
+    "Description": "User address",
     "fqn": "address",
     "children": [
       {
         "id": "node-2",
         "name": "street",
-        "properties": {
-          "rawType": "string",
-          "formattedType": "string",
-          "Nullable": "No",
-          "Description": "Street name"
-        },
+        "dataType": "string",
+        "dataTypeDisplay": "string",
+        "Nullable": "No",
+        "Description": "Street name",
         "fqn": "address.street"
       }
     ]
@@ -84,37 +78,31 @@ And `additionalData`:
   {
     "id": "node-0",
     "name": "user_id",
-    "properties": {
-      "rawType": "long",
-      "formattedType": "long",
-      "Nullable": "No",
-      "Description": "Unique user ID",
-      "Source": "DB",
-      "PII": "Yes"
-    },
+    "dataType": "long",
+    "dataTypeDisplay": "long",
+    "Nullable": "No",
+    "Description": "Unique user ID",
+    "Source": "DB",
+    "PII": "Yes",
     "fqn": "user_id"
   },
   {
     "id": "node-1",
     "name": "address",
-    "properties": {
-      "rawType": "record",
-      "formattedType": "record",
-      "Nullable": "No",
-      "Description": "User address"
-    },
+    "dataType": "record",
+    "dataTypeDisplay": "record",
+    "Nullable": "No",
+    "Description": "User address",
     "fqn": "address",
     "children": [
       {
         "id": "node-2",
         "name": "street",
-        "properties": {
-          "rawType": "string",
-          "formattedType": "string",
-          "Nullable": "No",
-          "Description": "Street name",
-          "Source": "API"
-        },
+        "dataType": "string",
+        "dataTypeDisplay": "string",
+        "Nullable": "No",
+        "Description": "Street name",
+        "Source": "API",
         "fqn": "address.street"
       }
     ]

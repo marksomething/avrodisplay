@@ -15,11 +15,10 @@ Transforms a given JSON Schema object into a standardized tree data format.
 -   `Array<Object>`: An array of tree nodes, where each node has the following structure:
     -   `id` (string): A unique identifier for the node.
     -   `name` (string): The display name of the field. For array types, `[]` is appended (e.g., `items[]`). For `oneOf` types, the specific type is enclosed in brackets (e.g., `[string]`, `[EmailContact]`).
-    -   `properties` (Object): An object containing key-value pairs describing the field:
-        -   `rawType` (string): The base JSON Schema data type of the field (e.g., `string`, `integer`, `array`, `object`, `union`).
-        -   `formattedType` (string): The formatted JSON Schema data type of the field (e.g., `string`, `integer`, `array[string]`, `object`). For `oneOf` types, it lists all non-null types (using their `title` if available, otherwise their `type`) separated by ` | `.
-        -   `Nullable` (string): Indicates if the field is nullable (`Yes` or `No`).
-        -   `Description` (string): The `description` from the JSON Schema, if available.
+    -   `dataType` (string): The base JSON Schema data type of the field (e.g., `string`, `integer`, `array`, `object`, `union`).
+    -   `dataTypeDisplay` (string): The formatted JSON Schema data type of the field (e.g., `string`, `integer`, `array[string]`, `object`). For `oneOf` types, it lists all non-null types (using their `title` if available, otherwise their `type`) separated by ` | `.
+    -   `Nullable` (string): Indicates if the field is nullable (`Yes` or `No`).
+    -   `Description` (string): The `description` from the JSON Schema, if available.
     -   `children` (Array<Object>, optional): An array of child nodes, recursively following the same structure, for complex types like objects or `oneOf` unions with multiple non-null options.
 
 ## `oneOf` Union Type Handling
@@ -29,7 +28,7 @@ When a JSON Schema property uses `oneOf` to define a union of types, the `jsonSc
 -   If `null` is part of the `oneOf` array, the `Nullable` property of the parent node is set to `Yes`.
 -   If there are multiple non-null options in the `oneOf` array, each non-null option (whether primitive or complex) is represented as a child node under the parent field.
 -   The `name` of these child nodes is formatted as `[TypeName]` (e.g., `[string]`, `[EmailContact]`).
--   The `rawType` and `formattedType` for these child nodes reflect their specific type (using `title` for objects if available, otherwise `object`).
+-   The `dataType` and `dataTypeDisplay` for these child nodes reflect their specific type (using `title` for objects if available, otherwise `object`).
 
 ## Example
 
@@ -59,52 +58,42 @@ Given a JSON Schema snippet:
   {
     "id": "node-0",
     "name": "contact_info",
-    "properties": {
-      "rawType": "union",
-      "formattedType": "EmailContact | PhoneContact | AddressContact",
-      "Nullable": "Yes",
-      "Description": "Contact information, can be a phone number or an email."
-    },
+    "dataType": "union",
+    "dataTypeDisplay": "EmailContact | PhoneContact | AddressContact",
+    "Nullable": "Yes",
+    "Description": "Contact information, can be a phone number or an email.",
     "children": [
       {
         "id": "node-1",
         "name": "[EmailContact]",
-        "properties": {
-          "rawType": "string",
-          "formattedType": "EmailContact",
-          "Nullable": "No",
-          "Description": ""
-        }
+        "dataType": "string",
+        "dataTypeDisplay": "EmailContact",
+        "Nullable": "No",
+        "Description": ""
       },
       {
         "id": "node-2",
         "name": "[PhoneContact]",
-        "properties": {
-          "rawType": "string",
-          "formattedType": "PhoneContact",
-          "Nullable": "No",
-          "Description": ""
-        }
+        "dataType": "string",
+        "dataTypeDisplay": "PhoneContact",
+        "Nullable": "No",
+        "Description": ""
       },
       {
         "id": "node-3",
         "name": "[AddressContact]",
-        "properties": {
-          "rawType": "object",
-          "formattedType": "AddressContact",
-          "Nullable": "No",
-          "Description": ""
-        },
+        "dataType": "object",
+        "dataTypeDisplay": "AddressContact",
+        "Nullable": "No",
+        "Description": "",
         "children": [
           {
             "id": "node-4",
             "name": "street",
-            "properties": {
-              "rawType": "string",
-              "formattedType": "string",
-              "Nullable": "No",
-              "Description": ""
-            }
+            "dataType": "string",
+            "dataTypeDisplay": "string",
+            "Nullable": "No",
+            "Description": ""
           }
         ]
       }

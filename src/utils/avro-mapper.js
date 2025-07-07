@@ -2,35 +2,35 @@ import { generateNodeId, getUnionTypeInfo } from './common-utils';
 
 const parseType = (type) => {
   let isNullable = false;
-  let rawType;
-  let formattedType;
+  let dataType;
+  let dataTypeDisplay;
 
   if (Array.isArray(type)) {
     const unionInfo = getUnionTypeInfo(type, parseType);
-    rawType = unionInfo.rawType;
-    formattedType = unionInfo.formattedType;
+    dataType = unionInfo.dataType;
+    dataTypeDisplay = unionInfo.dataTypeDisplay;
     isNullable = unionInfo.isNullable;
   } else if (typeof type === 'object' && type !== null) {
-    rawType = type.type;
+    dataType = type.type;
     if (type.type === 'array') {
         const itemTypeResult = parseType(type.items);
-        formattedType = `array[${itemTypeResult.formattedType}]`;
+        dataTypeDisplay = `array[${itemTypeResult.dataTypeDisplay}]`;
     } else { // record, enum, fixed
       if (type.type === 'record' && type.name) {
-        formattedType = type.name;
+        dataTypeDisplay = type.name;
       } else {
-        formattedType = type.type;
+        dataTypeDisplay = type.type;
       }
       if (type.logicalType) {
-        formattedType = `${formattedType}:${type.logicalType}`;
+        dataTypeDisplay = `${dataTypeDisplay}:${type.logicalType}`;
       }
     }
   } else { // primitive type
-    rawType = type;
-    formattedType = type;
+    dataType = type;
+    dataTypeDisplay = type;
   }
 
-  return { rawType, formattedType, isNullable };
+  return { dataType, dataTypeDisplay, isNullable };
 };
 
 const avroToTree = (schema) => {
@@ -38,15 +38,15 @@ const avroToTree = (schema) => {
 
   const createUnionNode = (unionType, baseFqn) => {
     let unionTypeName;
-    let unionFormattedType;
-    let unionRawType;
+    let unionDataTypeDisplay;
+    let unionDataType;
     let unionChildren = [];
 
     if (typeof unionType === 'object' && unionType !== null) {
       const parsedUnionType = parseType(unionType);
       unionTypeName = unionType.name || unionType.type;
-      unionFormattedType = parsedUnionType.formattedType;
-      unionRawType = parsedUnionType.rawType;
+      unionDataTypeDisplay = parsedUnionType.dataTypeDisplay;
+      unionDataType = parsedUnionType.dataType;
       if (unionType.type === 'record') {
         unionChildren = unionType.fields.map(f => processField(f, `${baseFqn}[${unionTypeName}]`));
       } else if (unionType.type === 'array' && typeof unionType.items === 'object' && unionType.items !== null && unionType.items.type === 'record') {
@@ -55,14 +55,17 @@ const avroToTree = (schema) => {
     } else {
       const parsedUnionType = parseType(unionType);
       unionTypeName = unionType;
-      unionFormattedType = parsedUnionType.formattedType;
-      unionRawType = parsedUnionType.rawType;
+      unionDataTypeDisplay = parsedUnionType.dataTypeDisplay;
+      unionDataType = parsedUnionType.dataType;
     }
 
     const unionNode = {
       id: generateNodeId(),
       name: `[${unionTypeName}]`,
-      properties: { rawType: unionRawType, formattedType: unionFormattedType, Nullable: 'No', Description: '' },
+      dataType: unionDataType,
+      dataTypeDisplay: unionDataTypeDisplay,
+      Nullable: 'No',
+      Description: '',
       fqn: `${baseFqn}[${unionTypeName}]`
     };
 
@@ -82,9 +85,9 @@ const avroToTree = (schema) => {
 
   const processField = (field, parentFqn = '') => {
     const parsedType = parseType(field.type);
-    let formattedType = parsedType.formattedType;
+    let dataTypeDisplay = parsedType.dataTypeDisplay;
     if (field.logicalType && typeof field.type !== 'object') {
-      formattedType = `${formattedType}:${field.logicalType}`;
+      dataTypeDisplay = `${dataTypeDisplay}:${field.logicalType}`;
     }
     const isArrayField = typeof field.type === 'object' && field.type !== null && field.type.type === 'array';
 
@@ -94,7 +97,10 @@ const avroToTree = (schema) => {
     const baseNode = {
       id: generateNodeId(),
       name: currentFieldName,
-      properties: { rawType: parsedType.rawType, formattedType: formattedType, Nullable: parsedType.isNullable ? 'Yes' : 'No', Description: field.doc || '' },
+      dataType: parsedType.dataType,
+      dataTypeDisplay: dataTypeDisplay,
+      Nullable: parsedType.isNullable ? 'Yes' : 'No',
+      Description: field.doc || '',
       fqn: currentFqn,
     };
 

@@ -6,25 +6,37 @@ describe('mergeData', () => {
     {
       id: 'node-0',
       name: 'user_id',
-      properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: 'Unique user ID' },
+      dataType: 'long',
+      dataTypeDisplay: 'long',
+      Nullable: 'No',
+      Description: 'Unique user ID',
       fqn: 'user_id',
     },
     {
       id: 'node-1',
       name: 'address',
-      properties: { rawType: 'record', formattedType: 'record', Nullable: 'No', Description: 'User address' },
+      dataType: 'record',
+      dataTypeDisplay: 'record',
+      Nullable: 'No',
+      Description: 'User address',
       fqn: 'address',
       children: [
         {
           id: 'node-2',
           name: 'street',
-          properties: { rawType: 'string', formattedType: 'string', Nullable: 'No', Description: 'Street name' },
+          dataType: 'string',
+          dataTypeDisplay: 'string',
+          Nullable: 'No',
+          Description: 'Street name',
           fqn: 'address.street',
         },
         {
           id: 'node-3',
           name: 'city',
-          properties: { rawType: 'string', formattedType: 'string', Nullable: 'No', Description: 'City name' },
+          dataType: 'string',
+          dataTypeDisplay: 'string',
+          Nullable: 'No',
+          Description: 'City name',
           fqn: 'address.city',
         },
       ],
@@ -32,13 +44,19 @@ describe('mergeData', () => {
     {
       id: 'node-4',
       name: 'orders[]',
-      properties: { rawType: 'array', formattedType: 'array[record]', Nullable: 'No', Description: 'User orders' },
+      dataType: 'array',
+      dataTypeDisplay: 'array[record]',
+      Nullable: 'No',
+      Description: 'User orders',
       fqn: 'orders[]',
       children: [
         {
           id: 'node-5',
           name: 'order_id',
-          properties: { rawType: 'long', formattedType: 'long', Nullable: 'No', Description: 'Order ID' },
+          dataType: 'long',
+          dataTypeDisplay: 'long',
+          Nullable: 'No',
+          Description: 'Order ID',
           fqn: 'orders[].order_id',
         },
       ],
@@ -53,27 +71,27 @@ describe('mergeData', () => {
 
     const mergedTree = mergeData(initialTreeData, additionalData);
 
-    expect(mergedTree[0].properties).toEqual({
-      rawType: 'long',
-      formattedType: 'long',
+    expect(mergedTree[0]).toMatchObject({
+      dataType: 'long',
+      dataTypeDisplay: 'long',
       Nullable: 'No',
       Description: 'Unique user ID',
       Source: 'DB',
       PII: 'Yes',
     });
 
-    expect(mergedTree[1].children[0].properties).toEqual({
-      rawType: 'string',
-      formattedType: 'string',
+    expect(mergedTree[1].children[0]).toMatchObject({
+      dataType: 'string',
+      dataTypeDisplay: 'string',
       Nullable: 'No',
       Description: 'Street name',
       Source: 'API',
     });
 
     // Ensure other nodes are untouched
-    expect(mergedTree[1].children[1].properties).toEqual({
-      rawType: 'string',
-      formattedType: 'string',
+    expect(mergedTree[1].children[1]).toMatchObject({
+      dataType: 'string',
+      dataTypeDisplay: 'string',
       Nullable: 'No',
       Description: 'City name',
     });
@@ -86,9 +104,9 @@ describe('mergeData', () => {
 
     const mergedTree = mergeData(initialTreeData, additionalData);
 
-    expect(mergedTree[2].children[0].properties).toEqual({
-      rawType: 'long',
-      formattedType: 'long',
+    expect(mergedTree[2].children[0]).toMatchObject({
+      dataType: 'long',
+      dataTypeDisplay: 'long',
       Nullable: 'No',
       Description: 'Order ID',
       Source: 'Kafka',
@@ -100,7 +118,7 @@ describe('mergeData', () => {
       'user_id': { Source: 'DB' },
     };
     mergeData(initialTreeData, additionalData);
-    expect(initialTreeData[0].properties).not.toHaveProperty('Source');
+    expect(initialTreeData[0]).not.toHaveProperty('Source');
   });
 
   it('should return original data if additionalData is null or undefined', () => {

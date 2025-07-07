@@ -26,17 +26,17 @@ const openMetadataToTree = (schema) => {
         }
         return t.dataType;
       });
-      const formattedType = dataTypeStrings.join(' | ');
+      const dataTypeDisplay = dataTypeStrings.join(' | ');
 
       const children = nonNullTypes.map(unionType => createUnionColumnNode(unionType));
-      return { formattedType, children };
+      return { dataTypeDisplay, children };
     }
-    return { formattedType: '', children: [] };
+    return { dataTypeDisplay: '', children: [] };
   };
 
   const processColumn = (column) => {
-    let rawType = column.dataType;
-    let formattedType = column.dataType;
+    let dataType = column.dataType;
+    let dataTypeDisplay = column.dataType;
     let name;
     let children = [];
 
@@ -57,29 +57,32 @@ const openMetadataToTree = (schema) => {
     }
 
     let isNullable = column.nullable || false;
-    if (rawType === 'UNION' && column.children) {
+    if (dataType === 'UNION' && column.children) {
       const hasNullChild = column.children.some(c => c.dataType === 'NULL');
       isNullable = isNullable || hasNullChild;
     }
 
-    if (rawType === 'ARRAY') {
-      formattedType = `ARRAY[${column.arrayDataType}]`;
+    if (dataType === 'ARRAY') {
+      dataTypeDisplay = `ARRAY[${column.arrayDataType}]`;
       name = `${column.name}[]`;
       if (column.arrayDataType === 'STRUCT' && column.children) {
         children = column.children.map(processColumn);
       }
-    } else if (rawType === 'STRUCT' && column.children) {
+    } else if (dataType === 'STRUCT' && column.children) {
       children = column.children.map(processColumn);
-    } else if (rawType === 'UNION' && column.children) {
+    } else if (dataType === 'UNION' && column.children) {
       const unionResult = processUnionColumns(column.children);
-      formattedType = unionResult.formattedType;
+      dataTypeDisplay = unionResult.dataTypeDisplay;
       children = unionResult.children;
     }
 
     const baseNode = {
       id: generateNodeId(),
       name: name,
-      properties: { rawType: rawType, formattedType: formattedType, Nullable: isNullable ? 'Yes' : 'No', Description: column.description || '' },
+      dataType: dataType,
+      dataTypeDisplay: dataTypeDisplay,
+      Nullable: isNullable ? 'Yes' : 'No',
+      Description: column.description || '',
     };
 
     if (children.length > 0) {
