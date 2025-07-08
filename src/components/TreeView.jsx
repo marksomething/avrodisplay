@@ -11,7 +11,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
 
   const headers = fieldConfiguration
     ? ['Name', ...Object.keys(fieldConfiguration).filter(header => header !== 'Name' && !fieldConfiguration[header]?.renderAsSecondLine)]
-    : (data.length > 0 ? ['Name', ...Object.keys(data[0].properties)] : []);
+    : (data.length > 0 ? ['Name', ...Object.keys(data[0]).filter(key => !['id', 'fqn', 'children'].includes(key))] : []);
 
   const renderNode = (node, ancestorsLast = [], isLast = true, rowIndex) => {
     const isExpanded = expanded[node.id];
@@ -21,7 +21,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
     const secondLineContent = secondLineFields.length > 0 ? (
       <div>
         {secondLineFields.map(header => {
-          const value = node.properties[header];
+          const value = node[header];
           const Formatter = fieldConfiguration[header]?.formatter;
           return Formatter ? React.createElement(Formatter, { key: header }, value) : <span key={header}>{String(value || '')}</span>;
         })}
@@ -41,7 +41,7 @@ const TreeView = ({ data, fieldConfiguration }) => {
           </div>
         </td>
         {headers.filter(header => header !== 'Name').map((header) => {
-          const value = node.properties[header];
+          const value = node[header];
           const Formatter = fieldConfiguration && fieldConfiguration[header] && fieldConfiguration[header].formatter;
           return (
             <td key={header}>
@@ -121,7 +121,7 @@ TreeView.propTypes = {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       children: PropTypes.array,
-      properties: PropTypes.object.isRequired,
+      // properties: PropTypes.object.isRequired, // This is no longer needed as properties are directly on the node
     })
   ).isRequired,
   fieldConfiguration: PropTypes.object,
