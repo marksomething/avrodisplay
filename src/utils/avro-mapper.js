@@ -64,7 +64,7 @@ const avroToTree = (schema) => {
       name: `[${unionTypeName}]`,
       dataType: unionDataType,
       dataTypeDisplay: unionDataTypeDisplay,
-      Nullable: 'No',
+      constraint: ['NOT_NULL'], // Union branches are inherently non-nullable
       Description: '',
       fqn: `${baseFqn}[${unionTypeName}]`
     };
@@ -94,12 +94,22 @@ const avroToTree = (schema) => {
     const currentFieldName = field.name + (isArrayField ? '[]' : '');
     const currentFqn = parentFqn ? `${parentFqn}.${currentFieldName}` : currentFieldName;
 
+    const constraints = [];
+    if (field.constraint) {
+      constraints.push(field.constraint);
+    }
+    if (parsedType.isNullable) {
+      constraints.push('NULL');
+    } else {
+      constraints.push('NOT_NULL');
+    }
+
     const baseNode = {
       id: generateNodeId(),
       name: currentFieldName,
       dataType: parsedType.dataType,
       dataTypeDisplay: dataTypeDisplay,
-      Nullable: parsedType.isNullable ? 'Yes' : 'No',
+      constraint: constraints,
       Description: field.doc || '',
       fqn: currentFqn,
     };

@@ -30,7 +30,7 @@ Given `treeData`:
     "name": "user_id",
     "dataType": "long",
     "dataTypeDisplay": "long",
-    "Nullable": "No",
+    "constraint": ["NOT_NULL"],
     "Description": "Unique user ID",
     "fqn": "user_id"
   },
@@ -39,7 +39,7 @@ Given `treeData`:
     "name": "address",
     "dataType": "record",
     "dataTypeDisplay": "record",
-    "Nullable": "No",
+    "constraint": ["NOT_NULL"],
     "Description": "User address",
     "fqn": "address",
     "children": [
@@ -48,7 +48,7 @@ Given `treeData`:
         "name": "street",
         "dataType": "string",
         "dataTypeDisplay": "string",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": "Street name",
         "fqn": "address.street"
       }
@@ -80,7 +80,7 @@ And `additionalData`:
     "name": "user_id",
     "dataType": "long",
     "dataTypeDisplay": "long",
-    "Nullable": "No",
+    "constraint": ["NOT_NULL"],
     "Description": "Unique user ID",
     "Source": "DB",
     "PII": "Yes",
@@ -91,7 +91,7 @@ And `additionalData`:
     "name": "address",
     "dataType": "record",
     "dataTypeDisplay": "record",
-    "Nullable": "No",
+    "constraint": ["NOT_NULL"],
     "Description": "User address",
     "fqn": "address",
     "children": [
@@ -100,7 +100,7 @@ And `additionalData`:
         "name": "street",
         "dataType": "string",
         "dataTypeDisplay": "string",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": "Street name",
         "Source": "API",
         "fqn": "address.street"

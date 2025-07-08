@@ -17,7 +17,7 @@ describe('avroToTree', () => {
       name: 'id',
       dataType: 'long',
       dataTypeDisplay: 'long',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'User ID',
       fqn: 'id',
     });
@@ -25,7 +25,7 @@ describe('avroToTree', () => {
       name: 'name',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'name',
     });
@@ -45,7 +45,7 @@ describe('avroToTree', () => {
       name: 'price',
       dataType: 'double',
       dataTypeDisplay: 'double',
-      Nullable: 'Yes',
+      constraint: ['NULL'],
       Description: '',
     });
   });
@@ -77,7 +77,7 @@ describe('avroToTree', () => {
       name: 'customerId',
       dataType: 'long',
       dataTypeDisplay: 'long',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'customer.customerId',
     });
@@ -97,7 +97,7 @@ describe('avroToTree', () => {
       name: 'tags[]',
       dataType: 'array',
       dataTypeDisplay: 'array[string]',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
   });
@@ -131,7 +131,7 @@ describe('avroToTree', () => {
       name: 'itemId',
       dataType: 'long',
       dataTypeDisplay: 'long',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'items[].itemId',
     });
@@ -157,14 +157,14 @@ describe('avroToTree', () => {
     const tree = avroToTree(avroSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('payload');
-    expect(tree[0].Nullable).toBe('Yes');
+    expect(tree[0].constraint).toEqual(['NULL']);
     expect(tree[0].children).toHaveLength(4); // LoginEvent, LogoutEvent, string, int
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[LoginEvent]',
       dataType: 'record',
       dataTypeDisplay: 'LoginEvent',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'payload[LoginEvent]',
     });
@@ -175,7 +175,7 @@ describe('avroToTree', () => {
       name: '[LogoutEvent]',
       dataType: 'record',
       dataTypeDisplay: 'LogoutEvent',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'payload[LogoutEvent]',
     });
@@ -186,7 +186,7 @@ describe('avroToTree', () => {
       name: '[string]',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'payload[string]',
     });
@@ -195,7 +195,7 @@ describe('avroToTree', () => {
       name: '[int]',
       dataType: 'int',
       dataTypeDisplay: 'int',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'payload[int]',
     });
@@ -222,14 +222,14 @@ describe('avroToTree', () => {
     const tree = avroToTree(avroSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('items[]');
-    expect(tree[0].Nullable).toBe('No'); // Array itself is not nullable
+    expect(tree[0].constraint).toEqual(['NOT_NULL']); // Array itself is not nullable
     expect(tree[0].children).toHaveLength(2); // string, ComplexItem
 
     expect(tree[0].children[0]).toMatchObject({
       name: '[string]',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'items[][string]',
     });
@@ -238,7 +238,7 @@ describe('avroToTree', () => {
       name: '[ComplexItem]',
       dataType: 'record',
       dataTypeDisplay: 'ComplexItem',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
       fqn: 'items[][ComplexItem]',
     });

@@ -17,7 +17,7 @@ Transforms a given Avro schema object into a standardized tree data format.
     -   `name` (string): The display name of the field. For array types, `[]` is appended (e.g., `items[]`). For union types, the specific type is enclosed in brackets (e.g., `[string]`, `[LoginEvent]`).
     -   `dataType` (string): The base Avro data type of the field (e.g., `string`, `long`, `array`, `record`, `union`).
     -   `dataTypeDisplay` (string): The formatted Avro data type of the field (e.g., `string`, `long`, `array[string]`, `LoginEvent`). For union types, it lists all non-null types separated by ` | `.
-    -   `Nullable` (string): Indicates if the field is nullable (`Yes` or `No`).
+    -   `constraint` (Array<string>): An array of constraints applied to the field. Will include `NULL` or `NOT_NULL` based on nullability, and any other Avro-specific constraints.
     -   `Description` (string): The documentation string (`doc`) from the Avro schema, if available.
     -   `fqn` (string): The Fully Qualified Name of the field, representing its path within the schema (e.g., `address.street`, `orders[].order_id`).
     -   `children` (Array<Object>, optional): An array of child nodes, recursively following the same structure, for complex types like records or unions with multiple non-null options.
@@ -26,7 +26,7 @@ Transforms a given Avro schema object into a standardized tree data format.
 
 When an Avro field is defined as a union (e.g., `["null", "string", {"type": "record", "name": "LoginEvent", ...}]`), the `avroToTree` function processes it as follows:
 
--   If `null` is part of the union, the `Nullable` property of the parent node is set to `Yes`.
+-   If `null` is part of the union, the `constraint` array of the parent node will include `NULL`.
 -   If there are multiple non-null options in the union, each non-null option (whether primitive or complex) is represented as a child node under the parent field.
 -   The `name` of these child nodes is formatted as `[TypeName]` (e.g., `[string]`, `[LoginEvent]`).
 -   The `dataType` and `dataTypeDisplay` for these child nodes reflect their specific type.
@@ -63,7 +63,7 @@ Given an Avro schema:
     "name": "id",
     "dataType": "long",
     "dataTypeDisplay": "long",
-    "Nullable": "No",
+    "constraint": ["NOT_NULL"],
     "Description": "Unique user ID",
     "fqn": "id"
   },
@@ -72,7 +72,7 @@ Given an Avro schema:
     "name": "contact",
     "dataType": "union",
     "dataTypeDisplay": "string | Email",
-    "Nullable": "Yes",
+    "constraint": ["NULL"],
     "Description": "User contact information",
     "fqn": "contact",
     "children": [
@@ -81,7 +81,7 @@ Given an Avro schema:
         "name": "[string]",
         "dataType": "string",
         "dataTypeDisplay": "string",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": "",
         "fqn": "contact[string]"
       },
@@ -90,7 +90,7 @@ Given an Avro schema:
         "name": "[Email]",
         "dataType": "record",
         "dataTypeDisplay": "Email",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": "",
         "fqn": "contact[Email]",
         "children": [
@@ -99,7 +99,7 @@ Given an Avro schema:
             "name": "address",
             "dataType": "string",
             "dataTypeDisplay": "string",
-            "Nullable": "No",
+            "constraint": ["NOT_NULL"],
             "Description": "",
             "fqn": "contact[Email].address"
           }

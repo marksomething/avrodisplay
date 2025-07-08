@@ -63,12 +63,16 @@ const jsonSchemaToTree = (schema) => {
       childDataType = typeName;
     }
 
+    const constraints = [];
+    // For oneOf children, they are typically not nullable unless explicitly stated, but OpenMetadata implies NOT_NULL for branches
+    constraints.push('NOT_NULL');
+
     const childNode = {
       id: generateNodeId(),
       name: `[${typeName}]`,
       dataType: childDataType,
       dataTypeDisplay: childDataTypeDisplay,
-      Nullable: 'No',
+      constraint: constraints,
       Description: unionType.description || '',
     };
 
@@ -103,12 +107,19 @@ const jsonSchemaToTree = (schema) => {
     const uniqueDataTypeStrings = [...new Set(dataTypeStrings)];
     const dataTypeDisplay = uniqueDataTypeStrings.join(' | ');
 
+    const constraints = [];
+    if (isNullable) {
+      constraints.push('NULL');
+    } else {
+      constraints.push('NOT_NULL');
+    }
+
     const baseNode = {
       id: generateNodeId(),
       name: name,
       dataType: 'union',
       dataTypeDisplay: dataTypeDisplay,
-      Nullable: isNullable ? 'Yes' : 'No',
+      constraint: constraints,
       Description: description || '',
     };
 
@@ -129,12 +140,22 @@ const jsonSchemaToTree = (schema) => {
       const parsedType = parseType(property);
       const isArrayField = property.type === 'array';
 
+      const constraints = [];
+      if (property.constraint) {
+        constraints.push(property.constraint);
+      }
+      if (parsedType.isNullable) {
+        constraints.push('NULL');
+      } else {
+        constraints.push('NOT_NULL');
+      }
+
       const baseNode = {
         id: generateNodeId(),
         name: name + (isArrayField ? '[]' : ''),
         dataType: parsedType.dataType,
         dataTypeDisplay: parsedType.dataTypeDisplay,
-        Nullable: parsedType.isNullable ? 'Yes' : 'No',
+        constraint: constraints,
         Description: property.description || '',
       };
 

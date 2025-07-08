@@ -17,7 +17,7 @@ Transforms a given OpenMetadata table schema object into a standardized tree dat
     -   `name` (string): The display name of the column. For array types, `[]` is appended (e.g., `line_items[]`). For union types, the specific type is enclosed in brackets (e.g., `[VARCHAR]`, `[email_contact]`).
     -   `dataType` (string): The base OpenMetadata data type of the column (e.g., `BIGINT`, `VARCHAR`, `ARRAY`, `STRUCT`, `UNION`).
     -   `dataTypeDisplay` (string): The formatted OpenMetadata data type of the column (e.g., `BIGINT`, `VARCHAR`, `ARRAY[VARCHAR]`, `STRUCT`). For union types, it lists all non-null types (using their `name` if available, otherwise their `dataType`) separated by ` | `.
-    -   `Nullable` (string): Indicates if the column is nullable (`Yes` or `No`). This is determined by the `nullable` property or the presence of a `NULL` type in a `UNION`.
+    -   `constraint` (Array<string>): An array of constraints applied to the field. Will include `NULL` or `NOT_NULL` based on nullability, and any other OpenMetadata-specific constraints like `PRIMARY_KEY`.
     -   `Description` (string): The `description` from the OpenMetadata schema, if available.
     -   `children` (Array<Object>, optional): An array of child nodes, recursively following the same structure, for complex types like `STRUCT` or `UNION` with multiple non-null options.
 
@@ -25,7 +25,7 @@ Transforms a given OpenMetadata table schema object into a standardized tree dat
 
 When an OpenMetadata column is defined as a `UNION` type, the `openMetadataToTree` function processes it as follows:
 
--   If a `NULL` type is part of the `children` array of the `UNION`, the `Nullable` property of the parent node is set to `Yes`.
+-   If a `NULL` type is part of the `children` array of the `UNION`, the `constraint` array of the parent node will include `NULL`.
 -   If there are multiple non-null options in the `UNION`'s `children` array, each non-null option (whether primitive or complex) is represented as a child node under the parent column.
 -   The `name` of these child nodes is formatted as `[TypeName]` (e.g., `[VARCHAR]`, `[email_contact]`). For primitive types without a `name`, their `dataType` is used as the `TypeName`.
 -   The `dataType` and `dataTypeDisplay` for these child nodes reflect their specific type.
@@ -86,7 +86,7 @@ Given an OpenMetadata schema snippet:
     "name": "contact_preference",
     "dataType": "UNION",
     "dataTypeDisplay": "email_contact | phone_contact | VARCHAR | INT",
-    "Nullable": "Yes",
+    "constraint": ["NULL"],
     "Description": "User's preferred contact method, can be email or phone.",
     "children": [
       {
@@ -94,7 +94,7 @@ Given an OpenMetadata schema snippet:
         "name": "[email_contact]",
         "dataType": "STRUCT",
         "dataTypeDisplay": "STRUCT",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": "Email contact details."
       },
       {
@@ -102,7 +102,7 @@ Given an OpenMetadata schema snippet:
         "name": "[phone_contact]",
         "dataType": "STRUCT",
         "dataTypeDisplay": "STRUCT",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": "Phone contact details."
       },
       {
@@ -110,7 +110,7 @@ Given an OpenMetadata schema snippet:
         "name": "[VARCHAR]",
         "dataType": "VARCHAR",
         "dataTypeDisplay": "VARCHAR",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": ""
       },
       {
@@ -118,7 +118,7 @@ Given an OpenMetadata schema snippet:
         "name": "[INT]",
         "dataType": "INT",
         "dataTypeDisplay": "INT",
-        "Nullable": "No",
+        "constraint": ["NOT_NULL"],
         "Description": ""
       }
     ]

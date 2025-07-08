@@ -16,14 +16,14 @@ describe('jsonSchemaToTree', () => {
       name: 'id',
       dataType: 'integer',
       dataTypeDisplay: 'integer',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'User ID'
     });
     expect(tree[1]).toMatchObject({
       name: 'name',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: ''
     });
   });
@@ -41,7 +41,7 @@ describe('jsonSchemaToTree', () => {
       name: 'email',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'Yes'
+      constraint: ['NULL']
     });
   });
 
@@ -58,7 +58,7 @@ describe('jsonSchemaToTree', () => {
       name: 'phone',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'Yes'
+      constraint: ['NULL']
     });
   });
 
@@ -83,13 +83,13 @@ describe('jsonSchemaToTree', () => {
       name: 'street',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'city',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
   });
 
@@ -106,7 +106,7 @@ describe('jsonSchemaToTree', () => {
       name: 'tags[]',
       dataType: 'array',
       dataTypeDisplay: 'array[string]',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
   });
 
@@ -134,13 +134,13 @@ describe('jsonSchemaToTree', () => {
       name: 'itemId',
       dataType: 'integer',
       dataTypeDisplay: 'integer',
-      Nullable: 'No'
+      constraint: ['NOT_NULL']
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'quantity',
       dataType: 'integer',
       dataTypeDisplay: 'integer',
-      Nullable: 'No'
+      constraint: ['NOT_NULL']
     });
   });
 
@@ -161,7 +161,7 @@ describe('jsonSchemaToTree', () => {
     const tree = jsonSchemaToTree(jsonSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('contact');
-    expect(tree[0].Nullable).toBe('Yes');
+    expect(tree[0].constraint).toEqual(['NULL']);
     expect(tree[0].dataTypeDisplay).toBe('EmailContact | string | AddressContact');
     expect(tree[0].children).toHaveLength(3); // EmailContact, PhoneContact, AddressContact
 
@@ -169,14 +169,14 @@ describe('jsonSchemaToTree', () => {
       name: '[EmailContact]',
       dataType: 'string',
       dataTypeDisplay: 'EmailContact',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
     expect(tree[0].children[2]).toMatchObject({
       name: '[AddressContact]',
       dataType: 'object',
       dataTypeDisplay: 'AddressContact',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: ''
     });
     expect(tree[0].children[2].children).toHaveLength(1);
@@ -184,7 +184,7 @@ describe('jsonSchemaToTree', () => {
       name: 'street',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No'
+      constraint: ['NOT_NULL']
     });
   });
 
@@ -204,7 +204,7 @@ describe('jsonSchemaToTree', () => {
     const tree = jsonSchemaToTree(jsonSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('value');
-    expect(tree[0].Nullable).toBe('Yes');
+    expect(tree[0].constraint).toEqual(['NULL']);
     expect(tree[0].dataTypeDisplay).toBe('string | integer');
     expect(tree[0].children).toHaveLength(2); // string, integer
 
@@ -212,14 +212,14 @@ describe('jsonSchemaToTree', () => {
       name: '[string]',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
     expect(tree[0].children[1]).toMatchObject({
       name: '[integer]',
       dataType: 'integer',
       dataTypeDisplay: 'integer',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
   });
@@ -240,7 +240,7 @@ describe('jsonSchemaToTree', () => {
     const tree = jsonSchemaToTree(jsonSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('value');
-    expect(tree[0].Nullable).toBe('Yes');
+    expect(tree[0].constraint).toEqual(['NULL']);
     expect(tree[0].dataTypeDisplay).toBe('string | integer');
     expect(tree[0].children).toHaveLength(2); // string, integer
 
@@ -248,14 +248,14 @@ describe('jsonSchemaToTree', () => {
       name: '[string]',
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
     expect(tree[0].children[1]).toMatchObject({
       name: '[integer]',
       dataType: 'integer',
       dataTypeDisplay: 'integer',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
   });

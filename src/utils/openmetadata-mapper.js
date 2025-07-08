@@ -11,6 +11,8 @@ const openMetadataToTree = (schema) => {
     const unionNode = processColumn(unionType);
     // For union children, always wrap the name in brackets
     unionNode.name = `[${unionNode.name}]`;
+    // Union branches are inherently non-nullable in OpenMetadata structure
+    unionNode.constraint = ['NOT_NULL'];
     return unionNode;
   };
 
@@ -76,12 +78,22 @@ const openMetadataToTree = (schema) => {
       children = unionResult.children;
     }
 
+    const constraints = [];
+    if (column.constraint) {
+      constraints.push(column.constraint);
+    }
+    if (isNullable) {
+      constraints.push('NULL');
+    } else {
+      constraints.push('NOT_NULL');
+    }
+
     const baseNode = {
       id: generateNodeId(),
       name: name,
       dataType: dataType,
       dataTypeDisplay: dataTypeDisplay,
-      Nullable: isNullable ? 'Yes' : 'No',
+      constraint: constraints,
       Description: column.description || '',
     };
 

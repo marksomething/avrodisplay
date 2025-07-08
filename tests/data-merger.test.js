@@ -8,7 +8,7 @@ describe('mergeData', () => {
       name: 'user_id',
       dataType: 'long',
       dataTypeDisplay: 'long',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'Unique user ID',
       fqn: 'user_id',
     },
@@ -17,7 +17,7 @@ describe('mergeData', () => {
       name: 'address',
       dataType: 'record',
       dataTypeDisplay: 'record',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'User address',
       fqn: 'address',
       children: [
@@ -26,7 +26,7 @@ describe('mergeData', () => {
           name: 'street',
           dataType: 'string',
           dataTypeDisplay: 'string',
-          Nullable: 'No',
+          constraint: ['NOT_NULL'],
           Description: 'Street name',
           fqn: 'address.street',
         },
@@ -35,7 +35,7 @@ describe('mergeData', () => {
           name: 'city',
           dataType: 'string',
           dataTypeDisplay: 'string',
-          Nullable: 'No',
+          constraint: ['NOT_NULL'],
           Description: 'City name',
           fqn: 'address.city',
         },
@@ -46,7 +46,7 @@ describe('mergeData', () => {
       name: 'orders[]',
       dataType: 'array',
       dataTypeDisplay: 'array[record]',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'User orders',
       fqn: 'orders[]',
       children: [
@@ -55,7 +55,7 @@ describe('mergeData', () => {
           name: 'order_id',
           dataType: 'long',
           dataTypeDisplay: 'long',
-          Nullable: 'No',
+          constraint: ['NOT_NULL'],
           Description: 'Order ID',
           fqn: 'orders[].order_id',
         },
@@ -74,7 +74,7 @@ describe('mergeData', () => {
     expect(mergedTree[0]).toMatchObject({
       dataType: 'long',
       dataTypeDisplay: 'long',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'Unique user ID',
       Source: 'DB',
       PII: 'Yes',
@@ -83,7 +83,7 @@ describe('mergeData', () => {
     expect(mergedTree[1].children[0]).toMatchObject({
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'Street name',
       Source: 'API',
     });
@@ -92,7 +92,7 @@ describe('mergeData', () => {
     expect(mergedTree[1].children[1]).toMatchObject({
       dataType: 'string',
       dataTypeDisplay: 'string',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'City name',
     });
   });
@@ -107,7 +107,7 @@ describe('mergeData', () => {
     expect(mergedTree[2].children[0]).toMatchObject({
       dataType: 'long',
       dataTypeDisplay: 'long',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'Order ID',
       Source: 'Kafka',
     });

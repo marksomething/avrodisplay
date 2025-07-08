@@ -15,14 +15,14 @@ describe('openMetadataToTree', () => {
       name: 'id',
       dataType: 'BIGINT',
       dataTypeDisplay: 'BIGINT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: 'User ID',
     });
     expect(tree[1]).toMatchObject({
       name: 'name',
       dataType: 'VARCHAR',
       dataTypeDisplay: 'VARCHAR',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
   });
@@ -39,7 +39,7 @@ describe('openMetadataToTree', () => {
       name: 'delivery_date',
       dataType: 'TIMESTAMP',
       dataTypeDisplay: 'TIMESTAMP',
-      Nullable: 'Yes',
+      constraint: ['NULL'],
     });
   });
 
@@ -64,13 +64,13 @@ describe('openMetadataToTree', () => {
       name: 'customer_id',
       dataType: 'BIGINT',
       dataTypeDisplay: 'BIGINT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'email',
       dataType: 'VARCHAR',
       dataTypeDisplay: 'VARCHAR',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
   });
 
@@ -86,7 +86,7 @@ describe('openMetadataToTree', () => {
       name: 'tags[]',
       dataType: 'ARRAY',
       dataTypeDisplay: 'ARRAY[VARCHAR]',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
   });
 
@@ -112,13 +112,13 @@ describe('openMetadataToTree', () => {
       name: 'item_id',
       dataType: 'BIGINT',
       dataTypeDisplay: 'BIGINT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
     expect(tree[0].children[1]).toMatchObject({
       name: 'quantity',
       dataType: 'INT',
       dataTypeDisplay: 'INT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
   });
 
@@ -141,7 +141,7 @@ describe('openMetadataToTree', () => {
     const tree = openMetadataToTree(omSchema);
     expect(tree).toHaveLength(1);
     expect(tree[0].name).toBe('contact_preference');
-    expect(tree[0].Nullable).toBe('Yes');
+    expect(tree[0].constraint).toEqual(['NULL']);
     expect(tree[0].dataTypeDisplay).toBe('email_contact | phone_contact | VARCHAR | INT');
     expect(tree[0].children).toHaveLength(4); // email_contact, phone_contact, string_option, int_option
 
@@ -149,7 +149,7 @@ describe('openMetadataToTree', () => {
       name: '[email_contact]',
       dataType: 'STRUCT',
       dataTypeDisplay: 'STRUCT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
     expect(tree[0].children[0].children).toHaveLength(1);
@@ -157,14 +157,14 @@ describe('openMetadataToTree', () => {
       name: 'email_address',
       dataType: 'VARCHAR',
       dataTypeDisplay: 'VARCHAR',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
 
     expect(tree[0].children[1]).toMatchObject({
       name: '[phone_contact]',
       dataType: 'STRUCT',
       dataTypeDisplay: 'STRUCT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
     expect(tree[0].children[1].children).toHaveLength(1);
@@ -172,14 +172,14 @@ describe('openMetadataToTree', () => {
       name: 'phone_number',
       dataType: 'VARCHAR',
       dataTypeDisplay: 'VARCHAR',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
     });
 
     expect(tree[0].children[2]).toMatchObject({
       name: '[VARCHAR]',
       dataType: 'VARCHAR',
       dataTypeDisplay: 'VARCHAR',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
 
@@ -187,7 +187,7 @@ describe('openMetadataToTree', () => {
       name: '[INT]',
       dataType: 'INT',
       dataTypeDisplay: 'INT',
-      Nullable: 'No',
+      constraint: ['NOT_NULL'],
       Description: '',
     });
   });

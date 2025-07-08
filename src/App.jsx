@@ -70,14 +70,29 @@ function App() {
 
   const mergedData = mergeData(data, additionalProperties);
 
-  const NullableStatusDotFormatter = (props) => (
-    <StatusDotFormatter {...props} colorMap={{ 'Yes': '#28a745', 'No': '#dc3545' }} />
-  );
+  const ConstraintFormatter = (props) => {
+    const constraints = props.children || [];
+    const isNullable = constraints.includes('NULL');
+    const isNotNull = constraints.includes('NOT_NULL');
+
+    let displayValue = '';
+    let color = '';
+
+    if (isNullable) {
+      displayValue = 'Yes';
+      color = '#dc3545'; // Red for Nullable
+    } else if (isNotNull) {
+      displayValue = 'No';
+      color = '#28a745'; // Green for Not Null
+    }
+
+    return <StatusDotFormatter {...props} colorMap={{ [displayValue]: color }}>{displayValue}</StatusDotFormatter>;
+  };
 
   const fieldConfiguration = {
     Name: { title: 'Field Name' },
     dataTypeDisplay: { title: 'Data Type' },
-    Nullable: { formatter: NullableStatusDotFormatter, title: 'Is Nullable?' },
+    constraint: { formatter: ConstraintFormatter, title: 'Nullable' },
     Description: { formatter: ItalicFormatter, title: 'Description', renderAsSecondLine: true },
     Source: { formatter: RainbowFormatter, title: 'Data Source' },
     PII: { title: 'Sensitive Data' },
